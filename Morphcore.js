@@ -1,4 +1,4 @@
-const { default: _gsap } = require("gsap/gsap-core");
+
 
 if (!_gsap) {
     throw new Error ("You need to import GSAP")
