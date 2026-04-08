@@ -1,45 +1,90 @@
-const { init, open, close, closeAll, destroy } = (() => {
+/*Reading uh? */
+;(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        define([], factory);
+    } else if (typeof module === 'object' && module.exports) {
+        module.exports = factory();
+    } else {
+        root.MorphCore = factory();
+    }
+}(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this, function () {
+    'use strict';
     const DEFAULTS = {
-        w: 360, h: 300, pos: 'center', dur: 0.55, ease: 'expo.out',
-        closeOnOverlay: false, pad: 12,
-        // Estilo del modal abierto — el usuario sobreescribe con data-*
+        w: 360,
+        h: 300,
+        pos: 'center',
+        dur: 0.55,
+        ease: 'expo.out',
+        closeOnOverlay: false,
+        closeOnEscape: true,
+        pad: 12,
         bg: '',
         radius: '6px',
         shadow: '',
+        overlayId: 'mo',
+        overlayAutoCreate: false,
+        overlayColor: 'transparent',
+        debug: false,
+        stackOffset: 16,
     };
-
-    let _gsap = null, _callbacks = { onOpen: null, onClose: null, onComplete: null }, _initiated = false, _listeners = [];
-    const stack = [];
-    let _scrollY = 0, _scrollLocked = false, _resizeTimer = null, _bodyStylesBackup = {};
-
+    let _gsap = null;
+    let _config = Object.assign({}, DEFAULTS);
+    let _initiated = false;
+    let _listeners = [];
+    const _stack = [];
+    const _events = {};
+    let _scrollY = 0;
+    let _scrollLocked = false;
+    let _resizeTimer = null;
+    let _bodyStylesBackup = {};
+    function log(...args) { if (_config.debug) console.log('[MorphCore]', ...args); }
+    function warn(...args) { console.warn('[MorphCore]', ...args); }
+    function on(event, handler) {
+        if (typeof handler !== 'function') return;
+        if (!_events[event]) _events[event] = [];
+        _events[event].push(handler);
+    }
+    function off(event, handler) {
+        if (!_events[event]) return;
+        _events[event] = _events[event].filter(h => h !== handler);
+    }
+    function emit(event, ...args) {
+        if (_events[event]) _events[event].forEach(h => {
+            try { h(...args); } catch (e) { warn('Event handler error:', e); }
+        });
+    }
     function opt(m, k) {
         if (m.dataset[k] !== undefined) return m.dataset[k];
         const camel = k.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
         if (m.dataset[camel] !== undefined) return m.dataset[camel];
-        return DEFAULTS[camel] !== undefined ? DEFAULTS[camel] : DEFAULTS[k] !== undefined ? DEFAULTS[k] : undefined;
+        return _config[camel] !== undefined ? _config[camel] : _config[k] !== undefined ? _config[k] : undefined;
     }
-
     function parseUnit(val, total) {
         if (val === undefined || val === null) return null;
         const s = String(val).trim();
         if (s.endsWith('%')) return (parseFloat(s) / 100) * total;
         return parseFloat(s);
     }
-
     function clamp(v, mn, mx) { return Math.max(mn, Math.min(v, mx)); }
-
     function calcPos(r, w, h, m) {
-        const pad = +opt(m, 'pad'), vw = window.innerWidth, vh = window.innerHeight;
+        const pad = +opt(m, 'pad');
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
         const rawX = m.dataset.posX ?? m.dataset['pos-x'];
         const rawY = m.dataset.posY ?? m.dataset['pos-y'];
+
         if (rawX !== undefined || rawY !== undefined) {
             const left = rawX !== undefined ? clamp(parseUnit(rawX, vw), pad, vw - w - pad) : clamp((vw - w) / 2, pad, vw - w - pad);
             const top = rawY !== undefined ? clamp(parseUnit(rawY, vh), pad, vh - h - pad) : clamp((vh - h) / 2, pad, vh - h - pad);
             return { top, left };
         }
-        const pos = opt(m, 'pos'), offset = stack.length * 16;
-        const cx = clamp((vw - w) / 2 + offset, pad, vw - w - pad), cy = clamp((vh - h) / 2 - offset, pad, vh - h - pad);
+
+        const pos = opt(m, 'pos');
+        const offset = _stack.length * _config.stackOffset;
+        const cx = clamp((vw - w) / 2 + offset, pad, vw - w - pad);
+        const cy = clamp((vh - h) / 2 - offset, pad, vh - h - pad);
         const T = pad, B = vh - h - pad, L = pad, R = vw - w - pad;
+
         switch (pos) {
             case 'top': return { top: T, left: cx };
             case 'bottom': return { top: B, left: cx };
@@ -70,35 +115,24 @@ const { init, open, close, closeAll, destroy } = (() => {
             default: return { top: cy, left: cx };
         }
     }
-
     function lockScroll() {
-        if (_scrollLocked) return;
-        _scrollY = window.scrollY;
-        _bodyStylesBackup = { overflow: document.body.style.overflow, position: document.body.style.position, top: document.body.style.top, left: document.body.style.left, right: document.body.style.right };
-        const sw = window.innerWidth - document.documentElement.clientWidth;
-        document.body.style.overflow = 'hidden';
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${_scrollY}px`;
-        document.body.style.left = '0';
-        document.body.style.right = '0';
-        if (sw > 0) document.body.style.paddingRight = sw + 'px';
-        _scrollLocked = true;
-    }
+    if (_scrollLocked) return;
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    
+    document.body.style.overflow = 'hidden';
+    document.body.style.paddingRight = `${scrollbarWidth}px`;
+    _scrollLocked = true;
+}
 
-    function unlockScroll() {
-        if (!_scrollLocked) return;
-        document.body.style.overflow = _bodyStylesBackup.overflow || '';
-        document.body.style.position = _bodyStylesBackup.position || '';
-        document.body.style.top = _bodyStylesBackup.top || '';
-        document.body.style.left = _bodyStylesBackup.left || '';
-        document.body.style.right = _bodyStylesBackup.right || '';
-        document.body.style.paddingRight = '';
-        window.scrollTo({ top: _scrollY, behavior: 'instant' });
-        _scrollLocked = false;
-    }
-
+function unlockScroll() {
+    if (!_scrollLocked) return;
+    
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+    
+    _scrollLocked = false;
+}
     const FOCUSABLE = ['a[href]', 'button:not([disabled])', 'input:not([disabled])', 'select:not([disabled])', 'textarea:not([disabled])', '[tabindex]:not([tabindex="-1"])', '[data-close]'].join(', ');
-
     function trapFocus(container, e) {
         const els = [...container.querySelectorAll(FOCUSABLE)].filter(el => !el.closest('[hidden]'));
         if (!els.length) { e.preventDefault(); return; }
@@ -106,15 +140,45 @@ const { init, open, close, closeAll, destroy } = (() => {
         if (e.shiftKey) { if (document.activeElement === first) { e.preventDefault(); last.focus(); } }
         else { if (document.activeElement === last) { e.preventDefault(); first.focus(); } }
     }
+    function getOverlay() { return document.getElementById(_config.overlayId); }
+    function ensureOverlay() {
+        let mo = getOverlay();
+        if (!mo && _config.overlayAutoCreate) {
+            mo = document.createElement('div');
+            mo.id = _config.overlayId;
+            Object.assign(mo.style, { position: 'fixed', inset: '0', zIndex: '99', background: _config.overlayColor, opacity: '0', pointerEvents: 'none', transition: 'opacity 0.3s ease' });
+            document.body.appendChild(mo);
+        }
+        return mo;
+    }
 
-    function getOverlay() { return document.getElementById('mo'); }
+    function resolveElement(m) {
+        if (typeof m === 'string') return document.getElementById(m) || document.querySelector(m);
+        return m;
+    }
+    function open(m, overrides) {
+        const gsap = _gsap;
+        m = resolveElement(m);
+        if (!m) { warn('open(): Element not found.'); return; }
+        const existingIndex = _stack.findIndex(e => e.modal === m);
+        if (existingIndex > -1) {
+            const entry = _stack[existingIndex];
+            if (entry._closing) {
+                gsap.killTweensOf(entry.clone);
+                const ctOld = entry.clone.querySelector('.modal-content');
+                if (ctOld) gsap.killTweensOf(ctOld);
+                entry.clone.remove();
+                _stack.splice(existingIndex, 1);
+                log('Interrupting close to re-open:', m.id || m);
+            } else {
+                log('Modal already open, skipping.');
+                return;
+            }
+        }
 
-    function open(m) {
-        if (typeof m === 'string') m = document.getElementById(m) || document.querySelector(m);
-        if (!m) return;
-        if (stack.some(e => e.modal === m)) return;
-
-        const cs = getComputedStyle(m), bg = cs.backgroundColor, br = cs.borderRadius, bs = cs.boxShadow;
+        const ov = overrides || {};
+        const cs = getComputedStyle(m);
+        const bg = cs.backgroundColor, br = cs.borderRadius, bs = cs.boxShadow;
         const prevFocus = document.activeElement;
 
         m.dataset.estado = 'abierto';
@@ -122,156 +186,200 @@ const { init, open, close, closeAll, destroy } = (() => {
         m.style.opacity = '0';
 
         const r = m.getBoundingClientRect();
-        const w = +opt(m, 'w'), h = +opt(m, 'h'), dur = +opt(m, 'dur'), ease = opt(m, 'ease');
-        const closeOnOverlay = opt(m, 'closeOnOverlay') === 'true' || opt(m, 'closeOnOverlay') === true;
+        const w = +(ov.w ?? opt(m, 'w')), h = +(ov.h ?? opt(m, 'h'));
+        const dur = +(ov.dur ?? opt(m, 'dur')), ease = ov.ease ?? opt(m, 'ease');
+        const closeOnOverlay = String(ov.closeOnOverlay ?? opt(m, 'closeOnOverlay')) === 'true';
         const dest = calcPos(r, w, h, m);
-        const z = 100 + stack.length * 2;
+        const z = 100 + _stack.length * 2;
 
-        // Opciones visuales del modal abierto — todas opcionales, el usuario las define con data-*
-        const openBg = opt(m, 'bg') || '';   // data-bg="#1a1a2e"
-        const openRadius = opt(m, 'radius') || '6px'; // data-radius="16px"
-        const openShadow = opt(m, 'shadow') || `0 1px 0 rgba(0,0,0,.15), 0 ${16 + stack.length * 4}px ${48 + stack.length * 8}px rgba(0,0,0,.4)`; // data-shadow="..."
+        const openBg = (ov.bg ?? opt(m, 'bg')) || '';
+        const openRadius = (ov.radius ?? opt(m, 'radius')) || '6px';
+        const openShadow = (ov.shadow ?? opt(m, 'shadow')) || `0 1px 0 rgba(0,0,0,.15), 0 ${16 + _stack.length * 4}px ${48 + _stack.length * 8}px rgba(0,0,0,.4)`;
 
         const clone = document.createElement('div');
         clone.className = 'morph-clone';
         clone.setAttribute('role', 'dialog');
         clone.setAttribute('aria-modal', 'true');
-        Object.assign(clone.style, {
-            top: r.top + 'px', left: r.left + 'px',
-            width: r.width + 'px', height: r.height + 'px',
-            borderRadius: br, background: bg, boxShadow: bs,
-            zIndex: z, pointerEvents: 'all'
-        });
+        Object.assign(clone.style, { position: 'fixed', top: r.top + 'px', left: r.left + 'px', width: r.width + 'px', height: r.height + 'px', borderRadius: br, background: bg, boxShadow: bs, zIndex: z, pointerEvents: 'all' });
         clone.addEventListener('pointerdown', e => e.stopPropagation());
         document.body.appendChild(clone);
 
-        const ct = m.querySelector('.modal-content').cloneNode(true);
+        const contentEl = m.querySelector('.modal-content');
+        if (!contentEl) {
+            warn('open(): No .modal-content found.');
+            clone.remove(); m.style.visibility = ''; m.style.opacity = ''; m.dataset.estado = 'cerrado';
+            return;
+        }
+        const ct = contentEl.cloneNode(true);
         Object.assign(ct.style, { display: 'flex', flexDirection: 'column', opacity: '0', height: '100%', boxSizing: 'border-box', overflowY: 'auto' });
         clone.appendChild(ct);
 
         const heading = ct.querySelector('h1,h2,h3,.mc-title');
         if (heading) { if (!heading.id) heading.id = `mc-t-${Date.now()}`; clone.setAttribute('aria-labelledby', heading.id); }
 
-        ct.querySelectorAll('[data-close]').forEach(el => el.addEventListener('pointerdown', e => { e.stopPropagation(); close(); }));
-        ct.querySelectorAll('[data-morph-target]').forEach(btn => btn.addEventListener('pointerdown', e => { e.stopPropagation(); open(document.getElementById(btn.dataset.morphTarget)); }));
+        ct.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', e => { e.stopPropagation(); close(); }));
+        ct.querySelectorAll('[data-morph-target]').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); open(document.getElementById(btn.dataset.morphTarget)); }));
 
         const trapHandler = e => { if (e.key === 'Tab') trapFocus(clone, e); };
         clone.addEventListener('keydown', trapHandler);
 
-        const entry = { modal: m, clone, opts: { w, h, dur, ease, br, bs, closeOnOverlay }, rect: { top: r.top, left: r.left, w: r.width, h: r.height }, prevFocus, trapHandler };
-        stack.push(entry);
-        if (stack.length === 1) lockScroll();
+        const entry = { modal: m, clone, opts: { w, h, dur, ease, br, bs, bg, closeOnOverlay }, rect: { top: r.top, left: r.left, w: r.width, h: r.height }, prevFocus, trapHandler, _closing: false };
+        _stack.push(entry);
 
-        const mo = getOverlay();
-        if (mo) { mo.style.opacity = '0'; mo.style.pointerEvents = stack.length === 1 ? 'all' : 'none'; }
+        if (_stack.length === 1) lockScroll();
+        const mo = ensureOverlay();
+        if (mo) { mo.style.opacity = '1'; mo.style.pointerEvents = _stack.length === 1 ? 'all' : 'none'; }
 
-        // Solo anima propiedades que el usuario definió — si no definió bg, no lo toca
         const toProps = { top: dest.top, left: dest.left, width: w, height: h, borderRadius: openRadius, boxShadow: openShadow, duration: dur, ease };
         if (openBg) toProps.background = openBg;
 
-        _gsap.to(clone, toProps);
-        _gsap.to(ct, { opacity: 1, duration: .5, delay: 0.1, ease: 'power2.out', onComplete() { const first = clone.querySelector(FOCUSABLE); if (first) first.focus(); _callbacks.onComplete?.(m); } });
-        _callbacks.onOpen?.(m);
-    }
+        gsap.to(clone, toProps);
+        gsap.to(ct, { opacity: 1, duration: 0.5, delay: 0.1, ease: 'power2.out', onComplete() {
+            const first = clone.querySelector(FOCUSABLE);
+            if (first) first.focus();
+            emit('complete', m);
+        }});
 
+        emit('open', m);
+    }
     function close() {
-        if (!stack.length) return;
-        const entry = stack[stack.length - 1];
+        if (!_stack.length) return;
+        const entry = _stack[_stack.length - 1];
         if (entry._closing) return;
         entry._closing = true;
+
+        const gsap = _gsap;
         const { modal: m, clone, opts, rect, prevFocus, trapHandler } = entry;
+        const ct = clone.querySelector('.modal-content');
+
         clone.style.pointerEvents = 'none';
         clone.removeEventListener('keydown', trapHandler);
-        _gsap.killTweensOf(clone);
-        const bg = getComputedStyle(m).backgroundColor;
+        gsap.killTweensOf(clone);
+        if (ct) gsap.killTweensOf(ct);
+
         const dur = opts.dur * 0.85;
-        const ct = clone.querySelector('.modal-content');
-        _gsap.to(ct, { opacity: 0, duration: 0.13, ease: 'power1.in' });
-        _gsap.to(clone, {
+
+        if (ct) gsap.to(ct, { opacity: 0, duration: 0.13, ease: 'power1.in' });
+        
+        gsap.to(clone, {
             top: rect.top, left: rect.left, width: rect.w, height: rect.h,
-            borderRadius: opts.br, background: bg, boxShadow: opts.bs,
+            borderRadius: opts.br, background: opts.bg || undefined, boxShadow: opts.bs,
             duration: dur, ease: 'expo.inOut',
             onComplete() {
                 m.style.visibility = '';
                 m.dataset.estado = 'cerrado';
-                _gsap.fromTo(m, { opacity: 0 }, { opacity: 1, duration: 0.18, ease: 'expo.out' });
-                _gsap.to(clone, {
-                    opacity: 0, duration: 0.18, ease: 'power2.in', onComplete() {
-                        clone.remove(); stack.pop();
-                        if (prevFocus && typeof prevFocus.focus === 'function') prevFocus.focus();
-                        if (stack.length === 0) { unlockScroll(); const mo = getOverlay(); if (mo) mo.style.pointerEvents = 'none'; }
-                        _callbacks.onClose?.(m);
+                gsap.fromTo(m, { opacity: 0 }, { opacity: 1, duration: 0.18, ease: 'expo.out' });
+                
+                gsap.to(clone, {
+                    opacity: 0, duration: 0.18, ease: 'power2.in',
+                    onComplete() {
+                        clone.remove();
+                        const stackIndex = _stack.findIndex(e => e.clone === clone);
+                        if (stackIndex > -1) _stack.splice(stackIndex, 1);
+
+                        if (prevFocus?.focus) prevFocus.focus();
+                        
+                        if (_stack.length === 0) {
+                            unlockScroll();
+                            const mo = getOverlay();
+                            if (mo) { mo.style.opacity = '0'; mo.style.pointerEvents = 'none'; }
+                        }
+                        emit('close', m);
+                        log('Closed modal:', m.id || m);
                     }
                 });
             }
         });
     }
-
     function closeAll() {
-        while (stack.length > 1) { const { modal: m, clone } = stack.pop(); clone.remove(); m.style.visibility = ''; m.style.opacity = ''; m.dataset.estado = 'cerrado'; }
-        if (stack.length === 1) close();
+        while (_stack.length > 1) {
+            const { modal: m, clone } = _stack.pop();
+            clone.remove(); m.style.visibility = ''; m.style.opacity = ''; m.dataset.estado = 'cerrado';
+        }
+        if (_stack.length === 1) close();
     }
 
     function onResize() {
         clearTimeout(_resizeTimer);
         _resizeTimer = setTimeout(() => {
-            stack.forEach(entry => {
+            _stack.forEach(entry => {
                 const r = entry.modal.getBoundingClientRect();
                 entry.rect = { top: r.top, left: r.left, w: r.width, h: r.height };
-                const { w, h } = entry.opts;
-                const dest = calcPos(r, w, h, entry.modal);
+                const dest = calcPos(r, entry.opts.w, entry.opts.h, entry.modal);
                 _gsap.to(entry.clone, { top: dest.top, left: dest.left, duration: 0.3, ease: 'power2.out' });
             });
         }, 120);
     }
 
-    function init(options = {}) {
-        if (_initiated) { console.warn('[morph-core] init() called more than once.'); return; }
-        _gsap = options.gsap || window.gsap;
-        if (!_gsap) throw new Error('[morph-core] GSAP not found.');
-        _callbacks.onOpen = options.onOpen || null;
-        _callbacks.onClose = options.onClose || null;
-        _callbacks.onComplete = options.onComplete || null;
+    function register(selector) {
+        if (!_initiated) return;
+        const elements = typeof selector === 'string' ? document.querySelectorAll(selector) : [selector];
+        elements.forEach(m => {
+            if (!m?.classList.contains('modal') || _listeners.some(l => l.el === m)) return;
+            const h = (e) => open(e.currentTarget);
+            m.addEventListener('pointerdown', h);
+            _listeners.push({ el: m, event: 'pointerdown', fn: h });
+        });
+    }
 
-        // Todo el .modal es clickeable como trigger
-        function hCard(e) { open(e.currentTarget); }
+    function configure(overrides) { Object.assign(_config, overrides); return _config; }
+    function getState() { return { initiated: _initiated, stackLength: _stack.length, scrollLocked: _scrollLocked, openModals: _stack.map(e => e.modal.id || e.modal) }; }
+    function isOpen(m) { return _stack.some(e => e.modal === resolveElement(m)); }
+
+    function init(options) {
+        if (_initiated) return;
+        const opts = options || {};
+        _gsap = opts.gsap || window.gsap;
+        if (!_gsap) throw new Error('[MorphCore] GSAP required.');
+
+        if (opts.onOpen) on('open', opts.onOpen);
+        if (opts.onClose) on('close', opts.onClose);
+        if (opts.config) configure(opts.config);
+
+        const hCard = (e) => open(e.currentTarget);
         document.querySelectorAll('.modal').forEach(m => {
             m.addEventListener('pointerdown', hCard);
             _listeners.push({ el: m, event: 'pointerdown', fn: hCard });
         });
 
-        function hExt(e) { open(document.getElementById(e.currentTarget.dataset.morphTarget)); }
-        document.querySelectorAll('[data-morph-target]').forEach(btn => {
-            if (!btn.closest('.modal-content')) {
-                btn.addEventListener('pointerdown', hExt);
-                _listeners.push({ el: btn, event: 'pointerdown', fn: hExt });
-            }
-        });
+        const hKey = (e) => { if (e.key === 'Escape' && _config.closeOnEscape) close(); };
+        document.addEventListener('keydown', hKey);
+        _listeners.push({ el: document, event: 'keydown', fn: hKey });
 
-        function hKey(e) { if (e.key === 'Escape') close(); }
-        document.addEventListener('keydown', hKey); _listeners.push({ el: document, event: 'keydown', fn: hKey });
-
-        const mo = getOverlay();
+        const mo = ensureOverlay();
         if (mo) {
-            function hOv(e) { if (e.target !== mo) return; const top = stack[stack.length - 1]; if (top && top.opts.closeOnOverlay) close(); }
-            mo.addEventListener('pointerdown', hOv); _listeners.push({ el: mo, event: 'pointerdown', fn: hOv });
+            const hOv = (e) => { if (e.target === mo && _stack[_stack.length - 1]?.opts.closeOnOverlay) close(); };
+            mo.addEventListener('pointerdown', hOv);
+            _listeners.push({ el: mo, event: 'pointerdown', fn: hOv });
         }
 
-        window.addEventListener('resize', onResize); _listeners.push({ el: window, event: 'resize', fn: onResize });
+        window.addEventListener('resize', onResize);
+        _listeners.push({ el: window, event: 'resize', fn: onResize });
         _initiated = true;
     }
 
     function destroy() {
-        stack.forEach(({ modal: m, clone }) => { clone.remove(); m.style.visibility = ''; m.style.opacity = ''; m.dataset.estado = 'cerrado'; });
-        stack.length = 0; unlockScroll();
-        const mo = getOverlay(); if (mo) { mo.style.opacity = '0'; mo.style.pointerEvents = 'none'; }
+        if (_gsap) {
+            _stack.forEach(({ modal: m, clone }) => {
+                _gsap.killTweensOf(clone);
+                _gsap.killTweensOf(m);
+                const ct = clone.querySelector('.modal-content');
+                if (ct) _gsap.killTweensOf(ct);
+            });
+        }
+        _stack.forEach(({ modal: m, clone }) => {
+            clone.remove(); m.style.visibility = ''; m.style.opacity = ''; m.dataset.estado = 'cerrado';
+        });
+        _stack.length = 0;
+        unlockScroll();
+        const mo = getOverlay();
+        if (mo) { mo.style.opacity = '0'; mo.style.pointerEvents = 'none'; }
         _listeners.forEach(({ el, event, fn }) => el.removeEventListener(event, fn));
-        _listeners.length = 0; _callbacks = { onOpen: null, onClose: null, onComplete: null }; _initiated = false; _gsap = null;
-        clearTimeout(_resizeTimer);
+        _listeners.length = 0;
+        _initiated = false;
+        _gsap = null;
     }
 
-    return { init, open, close, closeAll, destroy };
-})();
-
-init();
-window._MC = { open, close, closeAll, destroy };
+    return { init, destroy, open, close, closeAll, configure, getState, isOpen, register, on, off, version: '2.1.0' };
+})); 
+/*reading uh?*/
