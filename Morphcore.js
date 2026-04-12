@@ -8,7 +8,7 @@ window.MorphCore = (() => {
     let _active = null;
     let _scrollPos = 0;
 
-    // PARCHE: Bloqueo de Scroll Profesional (Cero saltos de contenido)
+    //Bloqueo de Scroll
     const lockScroll = (lock) => {
         if (lock) {
             _scrollPos = window.pageYOffset;
@@ -21,7 +21,7 @@ window.MorphCore = (() => {
         }
     };
 
-    // PARCHE: Persistencia de datos dinámicos (Inputs, Textareas, Selects)
+    //Persistencia de datos dinámicos (Inputs, Textareas, Selects)
     const syncState = (from, to) => {
         const f = from.querySelectorAll('input, textarea, select');
         const t = to.querySelectorAll('input, textarea, select');
@@ -60,10 +60,8 @@ window.MorphCore = (() => {
             borderRadius: getComputedStyle(m).borderRadius,
             duration: 0.7,
             ease: "expo.inOut",
-            roundProps: "x,y,width,height" // PARCHE: Evita ghosting por sub-píxeles
+            roundProps: "x,y,width,height"
         }, 0);
-
-        // Aterrizaje suave (Handoff de opacidad)
         tl.to(m, { opacity: 1, duration: 0.3 }, "-=0.3");
         tl.to(clone, { opacity: 0, duration: 0.3 }, "-=0.3");
 
@@ -124,7 +122,7 @@ window.MorphCore = (() => {
             borderRadius: m.dataset.radius || '24px',
             duration: 0.7,
             ease: "expo.out",
-            roundProps: "x,y,width,height" // PARCHE: Anti-blur
+            roundProps: "x,y,width,height"
         }, 0);
 
         tl.to(ct, { opacity: 1, duration: 0.3 }, 0.2);
