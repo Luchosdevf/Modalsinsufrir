@@ -1,201 +1,134 @@
-/* 
-   MorphCore v2.3.1
-   Uso: MorphCore.init({ gsap: gsap });
-*/
-;(function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        define([], factory);
-    } else if (typeof module === 'object' && module.exports) {
-        module.exports = factory();
-    } else {
-        root.MorphCore = factory();
-    }
-}(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this, function () {
-    'use strict';
 
-    const DEFAULTS = {
-        w: 360, h: 300, pos: 'center', dur: 0.65, ease: 'expo.out',
-        stackOffset: 20, pad: 15
+window.MorphCore = (() => {
+    let _gsap = null;
+    let _active = null;
+    let _scrollPos = 0;
+
+    //Bloqueo de Scroll
+    const lockScroll = (lock) => {
+        if (lock) {
+            const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+            document.body.style.overflow = 'hidden';
+            document.body.style.paddingRight = `${scrollBarWidth}px`;
+        } else {
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        }
     };
 
-    let _gsap = null, _config = Object.assign({}, DEFAULTS);
-    const _stack = [], _events = {};
-    let _scrollLocked = false;
-
-    // --- SISTEMA DE PERSISTENCIA ---
-    function syncState(source, dest) {
-        const s = source.querySelectorAll('input, select, textarea');
-        const d = dest.querySelectorAll('input, select, textarea');
-        s.forEach((el, i) => {
-            if (!d[i]) return;
-            if (el.type === 'checkbox' || el.type === 'radio') d[i].checked = el.checked;
-            else d[i].value = el.value;
+    /*Persistencia de datos dinámicos*/
+    const syncState = (from, to) => {
+        const f = from.querySelectorAll('input, textarea, select');
+        const t = to.querySelectorAll('input, textarea, select');
+        f.forEach((el, i) => {
+            if (!t[i]) return;
+            if (el.type === 'checkbox' || el.type === 'radio') t[i].checked = el.checked;
+            else t[i].value = el.value;
         });
-    }
+    };
 
-    // --- SISTEMA DE BLOQUEO DE SCROLL ---
-    function lockScroll() {
-        if (_scrollLocked) return;
-        const sw = window.innerWidth - document.documentElement.clientWidth;
-        if (sw > 0) {
-            document.body.style.paddingRight = sw + 'px';
-            document.querySelectorAll('[data-morph-fixed]').forEach(el => {
-                const s = window.getComputedStyle(el);
-                el.dataset.prevPad = s.paddingRight;
-                el.style.paddingRight = `calc(${s.paddingRight} + ${sw}px)`;
-            });
-        }
-        document.body.style.overflow = 'hidden';
-        _scrollLocked = true;
-    }
+    const close = () => {
+        if (!_active) return;
+        const { m, clone, r, ct, source } = _active;
+        
+        syncState(ct, source); // Guardar estado antes de destruir
 
-    function unlockScroll() {
-        if (!_scrollLocked) return;
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
-        document.querySelectorAll('[data-morph-fixed]').forEach(el => {
-            el.style.paddingRight = el.dataset.prevPad || '';
-            delete el.dataset.prevPad;
+        const tl = _gsap.timeline({
+            onComplete: () => {
+                _gsap.set(m, { visibility: 'visible', opacity: 1 });
+                clone.remove();
+                lockScroll(false);
+                _active = null;
+            }
         });
-        _scrollLocked = false;
-    }
 
-    // --- CÁLCULO DE POSICIÓN ---
-    function calcPos(r, w, h, m) {
-        const pad = parseFloat(m.dataset.pad || _config.pad);
-        const vw = document.documentElement.clientWidth;
-        const vh = document.documentElement.clientHeight;
-        const off = _stack.length * _config.stackOffset;
-        const pos = m.dataset.pos || _config.pos;
+        tl.to(ct, { opacity: 0, duration: 0.2 }, 0);
+        
+        tl.to(clone, {
+            x: 0, y: 0, width: r.width, height: r.height,
+            borderRadius: getComputedStyle(m).borderRadius,
+            duration: 0.7,
+            ease: "expo.inOut",
+            roundProps: "x,y,width,height" //Anti-ghosting
+        }, 0);
 
-        const cx = Math.max(pad, Math.min(vw - w - pad, (vw - w) / 2 + off));
-        const cy = Math.max(pad, Math.min(vh - h - pad, (vh - h) / 2 - off));
+        // Handoff suave
+        tl.to(m, { opacity: 1, duration: 0.3 }, "-=0.3");
+        tl.to(clone, { opacity: 0, duration: 0.3 }, "-=0.3");
 
-        const coords = {
-            'center': { top: cy, left: cx },
-            'top-left': { top: pad, left: pad },
-            'top-right': { top: pad, left: vw - w - pad },
-            'bottom-left': { top: vh - h - pad, left: pad },
-            'bottom-right': { top: vh - h - pad, left: vw - w - pad }
-        };
-        return coords[pos] || coords['center'];
-    }
+        const mo = document.getElementById('mo');
+        if (mo) tl.to(mo, { opacity: 0, pointerEvents: 'none', duration: 0.5 }, 0);
+    };
 
-    // --- APERTURA ---
-    function open(m) {
-        m = (typeof m === 'string') ? document.getElementById(m) : m;
-        if (!m || _stack.some(e => e.modal === m && !e._closing)) return;
-
-        const contentOrig = m.querySelector('.modal-content');
-        if (!contentOrig) return;
-
-        if (_stack.length === 0) lockScroll();
+    const open = (m) => {
+        if (_active || !m) return;
+        const contentSource = m.querySelector('.modal-content');
+        if (!contentSource) return;
 
         const r = m.getBoundingClientRect();
-        const s = window.getComputedStyle(m);
+        const cs = getComputedStyle(m);
+
+        lockScroll(true);
+        _gsap.to(m, { opacity: 0, duration: 0.2 });
 
         const clone = document.createElement('div');
         clone.className = 'morph-clone';
-        
         Object.assign(clone.style, {
             position: 'fixed', top: r.top + 'px', left: r.left + 'px',
             width: r.width + 'px', height: r.height + 'px',
-            background: s.backgroundColor, borderRadius: s.borderRadius,
-            border: s.border, boxShadow: s.boxShadow, boxSizing: 'border-box',
-            zIndex: 1000 + (_stack.length * 2), overflow: 'hidden', pointerEvents: 'all'
+            borderRadius: cs.borderRadius, background: cs.backgroundColor,
+            border: cs.border, color: cs.color, zIndex: 1000, overflow: 'hidden'
         });
-
-        m.style.opacity = '0';
-        m.style.pointerEvents = 'none';
-        m.style.visibility = 'hidden';
-
-        const ct = contentOrig.cloneNode(true);
-        ct.style.display = 'flex'; 
-        ct.style.flexDirection = 'column';
-        ct.style.opacity = '0';
-        ct.style.height = '100%';
-        ct.querySelectorAll('[id]').forEach(el => el.id = 'clone-' + el.id);
-        
-        syncState(contentOrig, ct);
-
-        clone.appendChild(ct);
         document.body.appendChild(clone);
 
-        const w = parseFloat(m.dataset.w || _config.w);
-        const h = parseFloat(m.dataset.h || _config.h);
-        const dest = calcPos(r, w, h, m);
-        const dur = _config.dur;
+        const ct = contentSource.cloneNode(true);
+        ct.style.display = 'block'; ct.style.opacity = '0';
+        syncState(contentSource, ct); // Traer estado actual al clon
+        clone.appendChild(ct);
 
-        _stack.push({ modal: m, clone, _closing: false });
+        const w = parseFloat(m.dataset.w) || 400, h = parseFloat(m.dataset.h) || 400;
+        const dest = { x: (window.innerWidth - w) / 2, y: (window.innerHeight - h) / 2 };
 
-        _gsap.to(clone, {
-            top: dest.top, left: dest.left, width: w, height: h,
-            duration: dur, ease: 'power4.out'
-        });
+        const tl = _gsap.timeline();
+        const mo = document.getElementById('mo');
+        if (mo) tl.to(mo, { opacity: 1, pointerEvents: 'all', duration: 0.5 }, 0);
 
-        _gsap.to(ct, { 
-            opacity: 1, duration: dur * 0.6, delay: 0.2, ease: "power2.out" 
-        });
-        
-        clone.addEventListener('click', (e) => {
-            if (e.target.closest('[data-close]')) close();
-        });
-    }
+        tl.to(clone, {
+            x: dest.x - r.left, y: dest.y - r.top,
+            width: w, height: h,
+            borderRadius: m.dataset.radius || '24px',
+            duration: 0.7,
+            ease: "expo.out",
+            roundProps: "x,y,width,height"
+        }, 0);
 
-    // --- CIERRE ---
-    function close() {
-        if (!_stack.length) return;
-        const entry = _stack.pop();
-        if (entry._closing) return;
-        entry._closing = true;
+        tl.to(ct, { opacity: 1, duration: 0.3 }, 0.2);
+        tl.fromTo(ct.children, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, stagger: 0.05 }, 0.25);
 
-        const { modal, clone } = entry;
-        const ct = clone.querySelector('.modal-content');
-        const contentOrig = modal.querySelector('.modal-content');
-
-        if (ct && contentOrig) syncState(ct, contentOrig);
-
-        const rect = modal.getBoundingClientRect();
-        const style = window.getComputedStyle(modal);
-        const dur = 0.55;
-
-        _gsap.to(ct, { opacity: 0, duration: dur * 0.3, ease: "power2.in" });
-
-        _gsap.to(clone, {
-            top: rect.top, left: rect.left, width: rect.width, height: rect.height,
-            borderRadius: style.borderRadius, borderWidth: style.borderWidth,
-            duration: dur, ease: 'power4.inOut',
-            onComplete: () => {
-                modal.style.visibility = '';
-                modal.style.pointerEvents = '';
-                _gsap.fromTo(modal, { opacity: 0 }, { opacity: 1, duration: 0.25, ease: 'none' });
-                _gsap.to(clone, { 
-                    opacity: 0, duration: 0.2, 
-                    onComplete: () => {
-                        clone.remove();
-                        if (_stack.length === 0) unlockScroll();
-                        if (_events['close']) _events['close'](modal);
-                    }
-                });
-            }
-        });
-    }
+        _active = { m, clone, r, ct, source: contentSource };
+        ct.querySelectorAll('[data-close]').forEach(b => b.onclick = close);
+    };
 
     return {
-        init: (opts = {}) => {
-            _gsap = opts.gsap || window.gsap;
-            if (!_gsap) {
-                console.error('[MorphCore] GSAP no encontrado. Se requiere GSAP 3.x');
-                return;
+        init: (config = {}) => {
+            _gsap = config.gsap || window.gsap;
+            if (!_gsap) return console.error("MorphCore: GSAP no encontrado.");
+
+            const setup = () => {
+                document.querySelectorAll('.modal-trigger').forEach(m => m.onclick = () => open(m));
+                const mo = document.getElementById('mo');
+                if (mo) mo.onclick = close;
+                document.addEventListener('keydown', e => e.key === 'Escape' && close());
+            };
+
+            // Ejecutar si el DOM ya está listo o esperar a que lo esté
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', setup);
+            } else {
+                setup();
             }
-            Object.assign(_config, opts.config || {});
-            document.querySelectorAll('.modal').forEach(m => {
-                m.addEventListener('click', (e) => {
-                    if (!e.target.closest('[data-close]')) open(m);
-                });
-            });
-            window.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
         },
-        open, close, on: (ev, fn) => { _events[ev] = fn; }
+        open,
+        close
     };
-}));
+})();
