@@ -76,7 +76,7 @@ window.MorphCore = (() => {
 
         const r = m.getBoundingClientRect();
         const cs = getComputedStyle(m);
-
+        ct.classList.add("is.open";
         lockScroll(true);
         _gsap.to(m, { opacity: 0, duration: 0.2 });
 
