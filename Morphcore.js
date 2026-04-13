@@ -100,6 +100,7 @@ window.MorphCore = (() => {
         const ct = contentSource.cloneNode(true);
         ct.style.display = 'block'; 
         ct.style.opacity = '0';
+        ct.classList.add('is-open');
         syncState(contentSource, ct); // Traer estado actual al clon
         clone.appendChild(ct);
 
