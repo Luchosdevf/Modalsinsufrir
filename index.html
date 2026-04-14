@@ -1,1200 +1,398 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MorphCore v2 — Documentación</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-
-:root {
-  --bg:    #09090b;
-  --bg1:   #111113;
-  --bg2:   #18181b;
-  --bg3:   #27272a;
-  --line:  #27272a;
-  --line2: #3f3f46;
-  --tx:    #fafafa;
-  --tx2:   #a1a1aa;
-  --tx3:   #71717a;
-  --acc:   #a78bfa;
-  --acc2:  #7c3aed;
-  --green: #34d399;
-  --amber: #fbbf24;
-  --red:   #f87171;
-  --mono:  'IBM Plex Mono', monospace;
-  --sans:  'Inter', sans-serif;
-  --r:     8px;
-}
-
-html { scroll-behavior: smooth; }
-
-body {
-  font-family: var(--sans);
-  background: var(--bg);
-  color: var(--tx);
-  font-size: 15px;
-  line-height: 1.7;
-  -webkit-font-smoothing: antialiased;
-}
-
-::selection { background: var(--acc2); color: #fff; }
-
-/* ── NAV ── */
-nav {
-  position: sticky; top: 0; z-index: 50;
-  background: rgba(9,9,11,.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--line);
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 32px; height: 52px;
-}
-
-.logo {
-  font-family: var(--mono);
-  font-size: 14px; font-weight: 600;
-  color: var(--tx); letter-spacing: -.02em;
-  display: flex; align-items: center; gap: 10px;
-  text-decoration: none;
-}
-
-.logo-badge {
-  font-size: 10px; padding: 2px 8px;
-  border: 1px solid var(--acc);
-  border-radius: 999px; color: var(--acc);
-  font-weight: 500; font-family: var(--mono);
-}
-
-.nav-links { display: flex; gap: 0; list-style: none; }
-.nav-links a {
-  font-size: 13px; color: var(--tx3);
-  text-decoration: none; padding: 0 16px; height: 52px;
-  display: flex; align-items: center;
-  transition: color .15s;
-  font-weight: 400;
-}
-.nav-links a:hover { color: var(--tx); }
-
-/* ── LAYOUT ── */
-.wrap { max-width: 880px; margin: 0 auto; padding: 0 32px; }
-
-/* ── HERO ── */
-.hero {
-  padding: 80px 0 60px;
-  border-bottom: 1px solid var(--line);
-}
-
-.hero-label {
-  font-size: 12px; font-weight: 500; letter-spacing: .1em;
-  text-transform: uppercase; color: var(--acc);
-  margin-bottom: 16px; font-family: var(--mono);
-}
-
-.hero h1 {
-  font-size: clamp(32px, 5vw, 48px);
-  font-weight: 700; line-height: 1.15;
-  letter-spacing: -.03em;
-  margin-bottom: 20px;
-}
-
-.hero h1 span { color: var(--acc); }
-
-.hero-desc {
-  font-size: 17px; color: var(--tx2);
-  max-width: 600px; line-height: 1.7;
-  margin-bottom: 32px;
-}
-
-.hero-badges {
-  display: flex; gap: 8px; flex-wrap: wrap;
-}
-
-.badge {
-  font-family: var(--mono);
-  font-size: 11px; padding: 4px 12px;
-  border: 1px solid var(--line2);
-  border-radius: 999px; color: var(--tx3);
-  display: inline-flex; align-items: center; gap: 6px;
-}
-
-.badge .dot {
-  width: 6px; height: 6px; border-radius: 50%;
-}
-
-.badge .dot.green { background: var(--green); }
-.badge .dot.amber { background: var(--amber); }
-.badge .dot.acc   { background: var(--acc); }
-
-/* ── SECTIONS ── */
-section {
-  padding: 56px 0;
-  border-bottom: 1px solid var(--line);
-}
-
-section:last-of-type { border-bottom: none; }
-
-.section-label {
-  font-family: var(--mono);
-  font-size: 11px; font-weight: 500;
-  letter-spacing: .1em; text-transform: uppercase;
-  color: var(--acc); margin-bottom: 8px;
-}
-
-h2 {
-  font-size: 28px; font-weight: 600;
-  letter-spacing: -.02em; margin-bottom: 16px;
-}
-
-h3 {
-  font-size: 18px; font-weight: 600;
-  letter-spacing: -.01em; margin-bottom: 12px;
-  margin-top: 32px;
-}
-
-h3:first-child { margin-top: 0; }
-
-p { color: var(--tx2); margin-bottom: 16px; }
-p strong { color: var(--tx); font-weight: 500; }
-
-/* ── CODE BLOCKS ── */
-pre {
-  background: var(--bg1);
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  padding: 20px 24px;
-  overflow-x: auto;
-  margin: 16px 0 24px;
-  font-family: var(--mono);
-  font-size: 13px;
-  line-height: 1.65;
-  color: var(--tx2);
-  position: relative;
-}
-
-pre .comment { color: var(--tx3); font-style: italic; }
-pre .keyword { color: var(--acc); }
-pre .string  { color: var(--green); }
-pre .func    { color: #60a5fa; }
-pre .number  { color: var(--amber); }
-pre .tag     { color: var(--red); }
-pre .attr    { color: var(--acc); }
-pre .attrval { color: var(--green); }
-
-code {
-  font-family: var(--mono);
-  font-size: 13px;
-  background: var(--bg2);
-  padding: 2px 7px;
-  border-radius: 4px;
-  color: var(--acc);
-}
-
-pre code {
-  background: none;
-  padding: 0;
-  color: inherit;
-}
-
-/* ── TABLES ── */
-.table-wrap {
-  overflow-x: auto;
-  margin: 16px 0 24px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-  font-family: var(--mono);
-}
-
-th {
-  text-align: left;
-  padding: 10px 16px;
-  border-bottom: 2px solid var(--line2);
-  color: var(--tx3);
-  font-weight: 500;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-}
-
-td {
-  padding: 10px 16px;
-  border-bottom: 1px solid var(--line);
-  color: var(--tx2);
-  vertical-align: top;
-}
-
-td:first-child { color: var(--tx); font-weight: 500; }
-td code { font-size: 12px; }
-
-/* ── DEMO AREA ── */
-.demo-area {
-  background: var(--bg1);
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  padding: 40px;
-  margin: 20px 0 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 200px;
-  position: relative;
-  overflow: hidden;
-}
-
-/* ── MODAL STYLES (para demos) ── */
-.modal {
-  border: 1px solid var(--line2);
-  color: var(--tx);
-  border-radius: 12px;
-  width: 120px;
-  height: 60px;
-  background: var(--bg2);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  font-family: var(--mono);
-  font-size: 12px;
-  transition: border-color .2s, background .2s;
-  user-select: none;
-}
-
-.modal:hover {
-  border-color: var(--acc);
-  background: var(--bg3);
-}
-
-.modal[data-estado="abierto"] > span,
-.modal[data-estado="abierto"] > p {
-  visibility: hidden;
-  opacity: 0;
-}
-
-.modal-content {
-  display: none;
-}
-
-.morph-clone {
-  position: fixed;
-  overflow: hidden;
-  z-index: 100;
-}
-
-.morph-clone .modal-content {
-  display: flex;
-  padding: 24px;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.morph-clone .modal-content h2 {
-  font-family: var(--sans);
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--bg);
-  margin-bottom: 4px;
-}
-
-.morph-clone .modal-content p {
-  font-size: 14px;
-  color: var(--bg3);
-  margin-bottom: 8px;
-}
-
-.morph-clone .modal-content button {
-  align-self: flex-start;
-  font-family: var(--mono);
-  font-size: 12px;
-  padding: 6px 16px;
-  border: 1px solid var(--line2);
-  border-radius: 6px;
-  background: var(--bg);
-  color: var(--tx);
-  cursor: pointer;
-  transition: background .15s, border-color .15s;
-}
-
-.morph-clone .modal-content button:hover {
-  background: var(--bg2);
-  border-color: var(--acc);
-}
-
-/* ── CARDS ── */
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 16px;
-  margin: 20px 0;
-}
-
-.feature-card {
-  background: var(--bg1);
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  padding: 24px;
-}
-
-.feature-card .icon {
-  font-size: 24px;
-  margin-bottom: 12px;
-}
-
-.feature-card h4 {
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.feature-card p {
-  font-size: 13px;
-  color: var(--tx3);
-  margin: 0;
-}
-
-/* ── STEP LIST ── */
-.steps {
-  counter-reset: step;
-  list-style: none;
-  margin: 20px 0;
-}
-
-.steps li {
-  counter-increment: step;
-  padding: 16px 0 16px 48px;
-  border-bottom: 1px solid var(--line);
-  position: relative;
-  color: var(--tx2);
-}
-
-.steps li::before {
-  content: counter(step);
-  position: absolute;
-  left: 0; top: 16px;
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  background: var(--bg2);
-  border: 1px solid var(--line2);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--mono);
-  font-size: 12px; font-weight: 600;
-  color: var(--acc);
-}
-
-.steps li:last-child { border-bottom: none; }
-
-/* ── CALLOUT ── */
-.callout {
-  background: var(--bg1);
-  border-left: 3px solid var(--acc);
-  border-radius: 0 var(--r) var(--r) 0;
-  padding: 16px 20px;
-  margin: 16px 0 24px;
-  font-size: 14px;
-  color: var(--tx2);
-}
-
-.callout strong { color: var(--acc); }
-
-.callout.warn {
-  border-left-color: var(--amber);
-}
-.callout.warn strong { color: var(--amber); }
-
-/* ── FOOTER ── */
-footer {
-  padding: 40px 0;
-  text-align: center;
-  color: var(--tx3);
-  font-size: 13px;
-  font-family: var(--mono);
-  border-top: 1px solid var(--line);
-}
-
-/* ── RESPONSIVE ── */
-@media (max-width: 640px) {
-  nav { padding: 0 16px; }
-  .wrap { padding: 0 16px; }
-  .hero { padding: 48px 0 40px; }
-  section { padding: 40px 0; }
-  pre { padding: 16px; font-size: 12px; }
-  .nav-links { display: none; }
-}
-
-/* ── COPY BUTTON ── */
-.code-wrap {
-  position: relative;
-}
-
-.copy-btn {
-  position: absolute;
-  top: 8px; right: 8px;
-  font-family: var(--mono);
-  font-size: 10px;
-  padding: 4px 10px;
-  border: 1px solid var(--line2);
-  border-radius: 4px;
-  background: var(--bg2);
-  color: var(--tx3);
-  cursor: pointer;
-  transition: color .15s, border-color .15s;
-  z-index: 2;
-}
-
-.copy-btn:hover { color: var(--tx); border-color: var(--acc); }
-
-/* ── ANCHOR LINKS ── */
-h2 .anchor, h3 .anchor {
-  color: var(--tx3);
-  text-decoration: none;
-  margin-left: 8px;
-  opacity: 0;
-  transition: opacity .15s;
-  font-weight: 400;
-}
-
-h2:hover .anchor, h3:hover .anchor { opacity: 1; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación MorphCore</title>
+    <style>
+        body {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            border-bottom: 1px solid #3e3e42;
+        }
+        h1 {
+            color: #ffffff;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            font-weight: 600;
+            font-family: inherit;
+        }
+        .subtitle {
+            color: #b0b0b0;
+            font-size: 1.2em;
+            opacity: 0.8;
+        }
+        .nav {
+            background: #2d2d30;
+            padding: 10px 20px;
+            border-bottom: 1px solid #3e3e42;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav a {
+            color: #808080;
+            text-decoration: none;
+            margin-right: 20px;
+            padding: 5px 10px;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+        .nav a:hover {
+            background: #37373d;
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #252526;
+            border-radius: 6px;
+        }
+        h2 {
+            color: #ffffff;
+            border-bottom: 2px solid #606060;
+            padding-bottom: 10px;
+            margin-top: 0;
+            font-size: 1.8em;
+        }
+        h3 {
+            color: #e0e0e0;
+            margin-top: 30px;
+            font-size: 1.4em;
+        }
+        code {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: inherit;
+        }
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 15px 0;
+            border: none;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        .token.comment { color: #808080; }
+        .token.keyword { color: #b0b0b0; }
+        .token.string { color: #a0a0a0; }
+        .token.function { color: #c0c0c0; }
+        .token.tag { color: #b0b0b0; }
+        .token.attr-name { color: #a8a8a8; }
+        .token.attr-value { color: #a0a0a0; }
+        .highlight {
+            background: #2a2a2a;
+            border-left: 4px solid #606060;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 6px 6px 0;
+        }
+        .highlight strong {
+            color: #ffffff;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+            background: #252526;
+            border: 1px solid #3e3e42;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        th, td {
+            border: 1px solid #3e3e42;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #37373d;
+            color: #ffffff;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background: #2d2d30;
+        }
+        .example {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border: none;
+        }
+        .example h4 {
+            margin-top: 0;
+            color: #e0e0e0;
+        }
+        .info-box {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border-left: 4px solid #606060;
+        }
+        .info-box strong {
+            color: #ffffff;
+        }
+        .code-block {
+            position: relative;
+        }
+        .code-block::before {
+            content: "HTML";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #37373d;
+            color: #9cdcfe;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .code-block.css::before {
+            content: "CSS";
+        }
+        .code-block.js::before {
+            content: "JavaScript";
+        }
+    </style>
 </head>
 <body>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- NAV                                                                    -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<nav>
-  <a href="#" class="logo">
-    MorphCore
-    <span class="logo-badge">v2.0</span>
-  </a>
-  <ul class="nav-links">
-    <li><a href="#inicio-rapido">Inicio</a></li>
-    <li><a href="#api">API</a></li>
-    <li><a href="#data-attrs">Data Attrs</a></li>
-    <li><a href="#posiciones">Posiciones</a></li>
-    <li><a href="#eventos">Eventos</a></li>
-    <li><a href="#spa">SPAs</a></li>
-    <li><a href="#demo">Demo</a></li>
-  </ul>
-</nav>
-
-<div class="wrap">
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- HERO                                                                   -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<div class="hero">
-  <div class="hero-label">Documentación</div>
-  <h1>Animaciones morph<br>para <span>modales</span></h1>
-  <p class="hero-desc">
-    MorphCore transforma cualquier elemento en un modal animado con efecto morph.
-    Escalable, configurable, compatible con ESM/UMD, y listo para SPAs.
-  </p>
-  <div class="hero-badges">
-    <span class="badge"><span class="dot green"></span> GSAP powered</span>
-    <span class="badge"><span class="dot acc"></span> UMD + ESM</span>
-    <span class="badge"><span class="dot amber"></span> ~5KB min</span>
-    <span class="badge"><span class="dot green"></span> A11y ready</span>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- FEATURES                                                               -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<section>
-  <div class="section-label">Características</div>
-  <h2>¿Por qué MorphCore?</h2>
-
-  <div class="feature-grid">
-    <div class="feature-card">
-      <div class="icon">🎭</div>
-      <h4>Efecto Morph</h4>
-      <p>El elemento se transforma suavemente en el modal, creando una transición visual fluida y natural.</p>
+    <div class="nav">
+        <a href="#inicio">Inicio</a>
+        <a href="#estilos">Estilos</a>
+        <a href="#atributos">Atributos</a>
+        <a href="#ejemplos">Ejemplos</a>
     </div>
-    <div class="feature-card">
-      <div class="icon">⚡</div>
-      <h4>GSAP Powered</h4>
-      <p>Usa GSAP para animaciones de alto rendimiento a 60fps con easings profesionales.</p>
-    </div>
-    <div class="feature-card">
-      <div class="icon">📦</div>
-      <h4>UMD + ESM</h4>
-      <p>Compatible con &lt;script&gt; tags, import/export ES Modules, y require() CommonJS.</p>
-    </div>
-    <div class="feature-card">
-      <div class="icon">🔧</div>
-      <h4>Configurable</h4>
-      <p>Defaults globales con configure(), overrides por modal con data-*, y overrides programáticos en open().</p>
-    </div>
-    <div class="feature-card">
-      <div class="icon">♿</div>
-      <h4>Accesible</h4>
-      <p>Focus trap, role="dialog", aria-modal, aria-labelledby, y cierre con Escape automáticos.</p>
-    </div>
-    <div class="feature-card">
-      <div class="icon">🔄</div>
-      <h4>SPAs Ready</h4>
-      <p>register() para modales dinámicos, destroy() para cleanup, sistema de eventos on/off.</p>
-    </div>
-  </div>
-</section>
+    <div class="container">
+        <div class="header">
+            <h1>MorphCore Docs</h1>
+            <p class="subtitle">Documentación completa para la librería de modales morph</p>
+        </div>
 
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- INICIO RÁPIDO                                                          -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<section id="inicio-rapido">
-  <div class="section-label">Inicio rápido</div>
-  <h2>Instalación y uso básico</h2>
+        <div id="inicio" class="section">
+            <h2>🚀 Inicio Rápido</h2>
+            <h3>1. CDN Requerido</h3>
+            <p>Incluye GSAP en tu proyecto para las animaciones:</p>
+            <div class="code-block js">
+                <pre><code>&lt;script src="<span class="token string">"https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js"</span>&gt;&lt;/script&gt;</code></pre>
+            </div>
 
-  <ol class="steps">
-    <li>
-      <strong>Incluir GSAP y MorphCore</strong>
-      <div class="code-wrap">
-        <pre><code><span class="comment">&lt;!-- CDN --&gt;</span>
-<span class="tag">&lt;script</span> <span class="attr">src</span>=<span class="attrval">"https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"</span><span class="tag">&gt;&lt;/script&gt;</span>
-<span class="tag">&lt;script</span> <span class="attr">src</span>=<span class="attrval">"Morphcore.js"</span><span class="tag">&gt;&lt;/script&gt;</span>
+            <h3>2. Estructura HTML Básica</h3>
+            <div class="info-box">
+                <strong>¿Qué es modal-trigger?</strong> Es el elemento que al hacer clic abre el modal. Puede ser cualquier elemento HTML (div, button, etc.) y define el punto de partida de la animación morph. Lo que pongas aquí se "transforma" visualmente en el modal.
+            </div>
+            <div class="code-block">
+                <pre><code>&lt;!-- Fondo oscuro del modal (backdrop) --&gt;
+&lt;<span class="token tag">div</span> <span class="token attr-name">id</span>=<span class="token attr-value">"mo"</span>&gt;&lt;/<span class="token tag">div</span>&gt;
 
-<span class="comment">// O con ES Modules:</span>
-<span class="keyword">import</span> MorphCore <span class="keyword">from</span> <span class="string">'./Morphcore.js'</span>;</code></pre>
-      </div>
-    </li>
-    <li>
-      <strong>Crear el HTML del modal</strong>
-      <div class="code-wrap">
-        <pre><code><span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="attrval">"modal"</span>
-     <span class="attr">data-w</span>=<span class="attrval">"400"</span>
-     <span class="attr">data-h</span>=<span class="attrval">"300"</span>
-     <span class="attr">data-bg</span>=<span class="attrval">"#ffffff"</span>
-     <span class="attr">data-radius</span>=<span class="attrval">"16px"</span>
-     <span class="attr">data-pos</span>=<span class="attrval">"center"</span><span class="tag">&gt;</span>
+&lt;!-- Trigger del modal --&gt;
+&lt;<span class="token tag">div</span> <span class="token attr-name">class</span>=<span class="token attr-value">"modal-trigger"</span> <span class="token attr-name">data-w</span>=<span class="token attr-value">"400"</span> <span class="token attr-name">data-h</span>=<span class="token attr-value">"300"</span>&gt;
+  &lt;<span class="token tag">span</span>&gt;Abrir Modal&lt;/<span class="token tag">span</span>&gt;
 
-  <span class="tag">&lt;span&gt;</span>Click para abrir<span class="tag">&lt;/span&gt;</span>
+  &lt;!-- Contenido oculto del modal --&gt;
+  &lt;<span class="token tag">div</span> <span class="token attr-name">class</span>=<span class="token attr-value">"modal-content"</span> <span class="token attr-name">style</span>=<span class="token attr-value">"display:none;"</span>&gt;
+    &lt;<span class="token tag">button</span> <span class="token attr-name">data-close</span>&gt;&times;&lt;/<span class="token tag">button</span>&gt;
+    &lt;<span class="token tag">h4</span>&gt;Título del Modal&lt;/<span class="token tag">h4</span>&gt;
+    &lt;<span class="token tag">p</span>&gt;Contenido aquí...&lt;/<span class="token tag">p</span>&gt;
+    &lt;<span class="token tag">button</span> <span class="token attr-name">data-close</span>&gt;Cerrar&lt;/<span class="token tag">button</span>&gt;
+  &lt;/<span class="token tag">div</span>&gt;
+&lt;/<span class="token tag">div</span>&gt;</code></pre>
+            </div>
 
-  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="attrval">"modal-content"</span><span class="tag">&gt;</span>
-    <span class="tag">&lt;h2&gt;</span>Título<span class="tag">&lt;/h2&gt;</span>
-    <span class="tag">&lt;p&gt;</span>Contenido del modal<span class="tag">&lt;/p&gt;</span>
-    <span class="tag">&lt;button</span> <span class="attr">data-close</span><span class="tag">&gt;</span>Cerrar<span class="tag">&lt;/button&gt;</span>
-  <span class="tag">&lt;/div&gt;</span>
-<span class="tag">&lt;/div&gt;</span></code></pre>
-      </div>
-    </li>
-    <li>
-      <strong>Inicializar MorphCore</strong>
-      <div class="code-wrap">
-        <pre><code><span class="comment">// Configuración opcional antes de init</span>
-MorphCore.<span class="func">configure</span>({
-  <span class="attr">dur</span>: <span class="number">0.5</span>,
-  <span class="attr">ease</span>: <span class="string">'expo.out'</span>,
-  <span class="attr">debug</span>: <span class="keyword">true</span>,
-});
+            <h3>3. JavaScript Inicialización</h3>
+            <div class="code-block js">
+                <pre><code>&lt;script src="<span class="token string">"main.js"</span>&gt;&lt;/script&gt;
+&lt;script&gt;
+  <span class="token comment">// Inicializar MorphCore con GSAP</span>
+  MorphCore.init({ gsap });
+&lt;/script&gt;</code></pre>
+            </div>
+        </div>
 
-<span class="comment">// Inicializar</span>
-MorphCore.<span class="func">init</span>({
-  <span class="attr">onOpen</span>:  (m) => console.<span class="func">log</span>(<span class="string">'Abierto:'</span>, m.id),
-  <span class="attr">onClose</span>: (m) => console.<span class="func">log</span>(<span class="string">'Cerrado:'</span>, m.id),
-});</code></pre>
-      </div>
-    </li>
-  </ol>
+        <div id="estilos" class="section">
+            <h2>🎨 Estilos y Personalización</h2>
+            <p>MorphCore es altamente personalizable. Puedes crear diferentes estilos para diferentes triggers usando clases CSS.</p>
 
-  <div class="callout">
-    <strong>Nota:</strong> El overlay es <strong>opcional por defecto</strong>. Los modales se abren sin overlay.
-    Para habilitarlo, configura <code>overlayAutoCreate: true</code> y <code>overlayColor: 'rgba(0,0,0,0.5)'</code>.
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- ESTRUCTURA HTML                                                        -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<section id="estructura">
-  <div class="section-label">Estructura</div>
-  <h2>Anatomía de un modal</h2>
-
-  <p>Cada modal tiene dos partes: el <strong>trigger</strong> (lo que se ve antes de abrir) y el <strong>contenido</strong> (lo que se muestra al abrir).</p>
-
-  <div class="code-wrap">
-    <pre><code><span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="attrval">"mi-modal"</span> <span class="attr">class</span>=<span class="attrval">"modal"</span> <span class="attr">data-w</span>=<span class="attrval">"500"</span> <span class="attr">data-h</span>=<span class="attrval">"400"</span><span class="tag">&gt;</span>
-
-  <span class="comment">&lt;!-- TRIGGER: visible cuando el modal está cerrado --&gt;</span>
-  <span class="tag">&lt;span&gt;</span>Soy el trigger<span class="tag">&lt;/span&gt;</span>
-
-  <span class="comment">&lt;!-- CONTENIDO: se clona y muestra al abrir --&gt;</span>
-  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="attrval">"modal-content"</span><span class="tag">&gt;</span>
-    <span class="tag">&lt;h2&gt;</span>Título del modal<span class="tag">&lt;/h2&gt;</span>
-    <span class="tag">&lt;p&gt;</span>Contenido aquí...<span class="tag">&lt;/p&gt;</span>
-    <span class="tag">&lt;button</span> <span class="attr">data-close</span><span class="tag">&gt;</span>Cerrar<span class="tag">&lt;/button&gt;</span>
-  <span class="tag">&lt;/div&gt;</span>
-<span class="tag">&lt;/div&gt;</span></code></pre>
-  </div>
-
-  <p>El <code>.modal-content</code> está oculto por CSS (<code>display: none</code>). Al abrir, MorphCore lo clona dentro de un <code>.morph-clone</code> posicionado con <code>position: fixed</code>.</p>
-
-  <h3>CSS mínimo requerido</h3>
-  <div class="code-wrap">
-    <pre><code><span class="comment">/* Ocultar contenido cuando está cerrado */</span>
-.<span class="func">modal-content</span> {
-  <span class="attr">display</span>: none;
+            <h3>CSS Obligatorio</h3>
+            <p>Estos estilos son esenciales para que funcione correctamente:</p>
+            <div class="code-block css">
+                <pre><code><span class="token comment">/* Estilo básico del trigger */</span>
+<span class="token selector">.modal-trigger</span> {
+  <span class="token property">cursor</span>: <span class="token value">pointer</span>;
+  <span class="token comment">/* Aquí defines cómo se ve el botón/element que abre el modal */</span>
 }
 
-<span class="comment">/* El clone animado */</span>
-.<span class="func">morph-clone</span> {
-  <span class="attr">position</span>: fixed;
-  <span class="attr">overflow</span>: hidden;
-  <span class="attr">z-index</span>: <span class="number">100</span>;
+<span class="token comment">/* Contenido del modal cuando está abierto */</span>
+<span class="token selector">.modal-content.is-open</span> {
+  <span class="token property">padding</span>: <span class="token value">24px</span>;
+  <span class="token property">display</span>: <span class="token value">flex !important</span>;
+  <span class="token property">flex-direction</span>: <span class="token value">column</span>;
+  <span class="token property">height</span>: <span class="token value">100%</span>;
+  <span class="token property">box-sizing</span>: <span class="token value">border-box</span>;
+  <span class="token comment">/* Estilos del interior del modal */</span>
 }
 
-<span class="comment">/* Mostrar contenido dentro del clone */</span>
-.<span class="func">morph-clone</span> .<span class="func">modal-content</span> {
-  <span class="attr">display</span>: flex;
-}
-
-<span class="comment">/* Ocultar trigger cuando está abierto */</span>
-.<span class="func">modal</span>[<span class="attr">data-estado</span>=<span class="attrval">"abierto"</span>] > * {
-  <span class="attr">visibility</span>: hidden;
-  <span class="attr">opacity</span>: <span class="number">0</span>;
+<span class="token comment">/* Clon del morph (no modificar) */</span>
+<span class="token selector">.morph-clone</span> {
+  <span class="token property">position</span>: <span class="token value">fixed</span>;
+  <span class="token property">z-index</span>: <span class="token value">1000</span>;
+  <span class="token property">overflow</span>: <span class="token value">hidden</span>;
 }</code></pre>
-  </div>
-</section>
+            </div>
 
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- API                                                                    -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<section id="api">
-  <div class="section-label">Referencia</div>
-  <h2>API Completa</h2>
+            <h3>Personalizando modal-trigger</h3>
+            <p>El <code>modal-trigger</code> es el corazón de la interacción. Puedes tener múltiples triggers con estilos diferentes usando clases adicionales.</p>
+            <div class="example">
+                <h4>Ejemplo: Múltiples Triggers con Estilos Distintos</h4>
+                <div class="code-block">
+                    <pre><code>&lt;!-- Trigger estilo botón moderno --&gt;
+&lt;<span class="token tag">div</span> <span class="token attr-name">class</span>=<span class="token attr-value">"modal-trigger btn-primary"</span> <span class="token attr-name">data-w</span>=<span class="token attr-value">"400"</span> <span class="token attr-name">data-h</span>=<span class="token attr-value">"300"</span>&gt;
+  &lt;<span class="token tag">span</span>&gt;Configuración&lt;/<span class="token tag">span</span>&gt;
+  &lt;<span class="token tag">div</span> <span class="token attr-name">class</span>=<span class="token attr-value">"modal-content"</span> <span class="token attr-name">style</span>=<span class="token attr-value">"display:none;"</span>&gt;...&lt;/<span class="token tag">div</span>&gt;
+&lt;/<span class="token tag">div</span>&gt;
 
-  <h3><code>MorphCore.configure(options)</code></h3>
-  <p>Actualiza los defaults globales. Se puede llamar <strong>antes o después</strong> de <code>init()</code>. Retorna el objeto de configuración actual.</p>
-  <div class="code-wrap">
-    <pre><code>MorphCore.<span class="func">configure</span>({
-  <span class="attr">dur</span>: <span class="number">0.4</span>,
-  <span class="attr">ease</span>: <span class="string">'power3.out'</span>,
-  <span class="attr">pad</span>: <span class="number">20</span>,
-  <span class="attr">debug</span>: <span class="keyword">true</span>,
-  <span class="attr">overlayColor</span>: <span class="string">'rgba(0,0,0,0.6)'</span>,
-  <span class="attr">closeOnEscape</span>: <span class="keyword">true</span>,
-});</code></pre>
-  </div>
-
-  <h3><code>MorphCore.init(options?)</code></h3>
-  <p>Inicializa la librería. Registra todos los <code>.modal</code> existentes, crea el overlay si no existe, y configura los event listeners globales.</p>
-  <div class="code-wrap">
-    <pre><code>MorphCore.<span class="func">init</span>({
-  <span class="attr">gsap</span>: gsap,              <span class="comment">// opcional si gsap está en window</span>
-  <span class="attr">onOpen</span>: (modal) => {},    <span class="comment">// callback al abrir</span>
-  <span class="attr">onClose</span>: (modal) => {},   <span class="comment">// callback al cerrar</span>
-  <span class="attr">onComplete</span>: (modal) => {},<span class="comment">// callback al completar animación</span>
-  <span class="attr">config</span>: { dur: <span class="number">0.5</span> },     <span class="comment">// equivale a configure()</span>
-});</code></pre>
-  </div>
-
-  <h3><code>MorphCore.open(target, overrides?)</code></h3>
-  <p>Abre un modal. <code>target</code> puede ser un <strong>elemento DOM</strong>, un <strong>ID</strong> (string), o un <strong>selector CSS</strong>.</p>
-  <div class="code-wrap">
-    <pre><code><span class="comment">// Por ID</span>
-MorphCore.<span class="func">open</span>(<span class="string">'mi-modal'</span>);
-
-<span class="comment">// Por selector</span>
-MorphCore.<span class="func">open</span>(<span class="string">'#mi-modal'</span>);
-MorphCore.<span class="func">open</span>(<span class="string">'.modal.especial'</span>);
-
-<span class="comment">// Por referencia DOM</span>
-<span class="keyword">const</span> el = document.<span class="func">getElementById</span>(<span class="string">'mi-modal'</span>);
-MorphCore.<span class="func">open</span>(el);
-
-<span class="comment">// Con overrides programáticos (ignoran data-*)</span>
-MorphCore.<span class="func">open</span>(<span class="string">'mi-modal'</span>, {
-  <span class="attr">w</span>: <span class="number">600</span>,
-  <span class="attr">h</span>: <span class="number">400</span>,
-  <span class="attr">bg</span>: <span class="string">'#1a1a2e'</span>,
-  <span class="attr">radius</span>: <span class="string">'24px'</span>,
-});</code></pre>
-  </div>
-
-  <h3><code>MorphCore.close()</code></h3>
-  <p>Cierra el modal superior del stack (el último abierto).</p>
-
-  <h3><code>MorphCore.closeAll()</code></h3>
-  <p>Cierra todos los modales abiertos, animando solo el último.</p>
-
-  <h3><code>MorphCore.register(selector)</code></h3>
-  <p>Registra modales dinámicamente (útil para SPAs). Acepta un selector CSS o un elemento DOM.</p>
-  <div class="code-wrap">
-    <pre><code><span class="comment">// Después de inyectar HTML dinámico</span>
-document.body.<span class="func">insertAdjacentHTML</span>(<span class="string">'beforeend'</span>, nuevoModalHTML);
-MorphCore.<span class="func">register</span>(<span class="string">'#modal-nuevo'</span>);</code></pre>
-  </div>
-
-  <h3><code>MorphCore.isOpen(target)</code></h3>
-  <p>Retorna <code>true</code> si el modal está actualmente abierto.</p>
-  <div class="code-wrap">
-    <pre><code><span class="keyword">if</span> (MorphCore.<span class="func">isOpen</span>(<span class="string">'mi-modal'</span>)) {
-  console.<span class="func">log</span>(<span class="string">'El modal está abierto'</span>);
-}</code></pre>
-  </div>
-
-  <h3><code>MorphCore.getState()</code></h3>
-  <p>Retorna el estado interno de la librería.</p>
-  <div class="code-wrap">
-    <pre><code><span class="keyword">const</span> state = MorphCore.<span class="func">getState</span>();
-<span class="comment">// {</span>
-<span class="comment">//   initiated: true,</span>
-<span class="comment">//   stackLength: 1,</span>
-<span class="comment">//   scrollLocked: true,</span>
-<span class="comment">//   config: { dur: 0.55, ... },</span>
-<span class="comment">//   openModals: ['mi-modal']</span>
-<span class="comment">// }</span></code></pre>
-  </div>
-
-  <h3><code>MorphCore.destroy()</code></h3>
-  <p>Destruye la instancia: cierra todos los modales, remueve listeners, resetea configuración. Permite re-inicializar con <code>init()</code>.</p>
-
-  <h3><code>MorphCore.version</code></h3>
-  <p>String con la versión actual: <code>"2.0.0"</code></p>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- DATA ATTRIBUTES                                                        -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<section id="data-attrs">
-  <div class="section-label">Configuración</div>
-  <h2>Data Attributes</h2>
-
-  <p>Cada modal se configura individualmente con <code>data-*</code> attributes. Estos sobreescriben los defaults globales.</p>
-
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr><th>Atributo</th><th>Tipo</th><th>Default</th><th>Descripción</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><code>data-w</code></td><td>number</td><td>360</td><td>Ancho del modal abierto (px)</td></tr>
-        <tr><td><code>data-h</code></td><td>number</td><td>300</td><td>Alto del modal abierto (px)</td></tr>
-        <tr><td><code>data-pos</code></td><td>string</td><td>center</td><td>Posición del modal (ver sección Posiciones)</td></tr>
-        <tr><td><code>data-pos-x</code></td><td>number|%</td><td>—</td><td>Posición X absoluta (px o %)</td></tr>
-        <tr><td><code>data-pos-y</code></td><td>number|%</td><td>—</td><td>Posición Y absoluta (px o %)</td></tr>
-        <tr><td><code>data-dur</code></td><td>number</td><td>0.55</td><td>Duración de la animación (segundos)</td></tr>
-        <tr><td><code>data-ease</code></td><td>string</td><td>expo.out</td><td>Easing de GSAP para la apertura</td></tr>
-        <tr><td><code>data-bg</code></td><td>string</td><td>—</td><td>Color de fondo del modal abierto</td></tr>
-        <tr><td><code>data-radius</code></td><td>string</td><td>6px</td><td>Border-radius del modal abierto</td></tr>
-        <tr><td><code>data-shadow</code></td><td>string</td><td>auto</td><td>Box-shadow del modal abierto</td></tr>
-        <tr><td><code>data-pad</code></td><td>number</td><td>12</td><td>Padding mínimo desde los bordes del viewport</td></tr>
-        <tr><td><code>data-close-on-overlay</code></td><td>boolean</td><td>false</td><td>Cerrar al hacer click en el overlay</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="code-wrap">
-    <pre><code><span class="comment">&lt;!-- Ejemplo con todas las opciones --&gt;</span>
-<span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="attrval">"modal"</span>
-     <span class="attr">id</span>=<span class="attrval">"modal-completo"</span>
-     <span class="attr">data-w</span>=<span class="attrval">"500"</span>
-     <span class="attr">data-h</span>=<span class="attrval">"400"</span>
-     <span class="attr">data-pos</span>=<span class="attrval">"center"</span>
-     <span class="attr">data-dur</span>=<span class="attrval">"0.6"</span>
-     <span class="attr">data-ease</span>=<span class="attrval">"power3.out"</span>
-     <span class="attr">data-bg</span>=<span class="attrval">"#ffffff"</span>
-     <span class="attr">data-radius</span>=<span class="attrval">"20px"</span>
-     <span class="attr">data-shadow</span>=<span class="attrval">"0 25px 100px rgba(0,0,0,.5)"</span>
-     <span class="attr">data-close-on-overlay</span>=<span class="attrval">"true"</span><span class="tag">&gt;</span>
-  ...
-<span class="tag">&lt;/div&gt;</span></code></pre>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- POSICIONES                                                             -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<section id="posiciones">
-  <div class="section-label">Layout</div>
-  <h2>Posiciones</h2>
-
-  <p>El atributo <code>data-pos</code> controla dónde se posiciona el modal al abrirse. Todas las posiciones respetan el <code>data-pad</code> como margen mínimo.</p>
-
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr><th>Valor</th><th>Descripción</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><code>center</code></td><td>Centro del viewport (default). Se apila con offset si hay múltiples modales.</td></tr>
-        <tr><td><code>top</code></td><td>Centrado horizontalmente, pegado arriba.</td></tr>
-        <tr><td><code>bottom</code></td><td>Centrado horizontalmente, pegado abajo.</td></tr>
-        <tr><td><code>left</code></td><td>Centrado verticalmente, pegado a la izquierda.</td></tr>
-        <tr><td><code>right</code></td><td>Centrado verticalmente, pegado a la derecha.</td></tr>
-        <tr><td><code>top-left</code></td><td>Esquina superior izquierda.</td></tr>
-        <tr><td><code>top-right</code></td><td>Esquina superior derecha.</td></tr>
-        <tr><td><code>bottom-left</code></td><td>Esquina inferior izquierda.</td></tr>
-        <tr><td><code>bottom-right</code></td><td>Esquina inferior derecha.</td></tr>
-        <tr><td><code>origin</code></td><td>Al lado del trigger (derecha, o izquierda si no cabe).</td></tr>
-        <tr><td><code>origin-below</code></td><td>Debajo del trigger (o arriba si no cabe).</td></tr>
-        <tr><td><code>origin-above</code></td><td>Arriba del trigger (o debajo si no cabe).</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>Posición absoluta con data-pos-x / data-pos-y</h3>
-  <p>Para posicionamiento preciso, usa <code>data-pos-x</code> y <code>data-pos-y</code>. Aceptan valores en <strong>px</strong> o <strong>%</strong>.</p>
-  <div class="code-wrap">
-    <pre><code><span class="comment">&lt;!-- Posición absoluta en px --&gt;</span>
-<span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="attrval">"modal"</span> <span class="attr">data-pos-x</span>=<span class="attrval">"100"</span> <span class="attr">data-pos-y</span>=<span class="attrval">"200"</span><span class="tag">&gt;</span>
-
-<span class="comment">&lt;!-- Posición en porcentaje --&gt;</span>
-<span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="attrval">"modal"</span> <span class="attr">data-pos-x</span>=<span class="attrval">"50%"</span> <span class="attr">data-pos-y</span>=<span class="attrval">"25%"</span><span class="tag">&gt;</span></code></pre>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- EVENTOS                                                                -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<section id="eventos">
-  <div class="section-label">Extensibilidad</div>
-  <h2>Sistema de Eventos</h2>
-
-  <p>MorphCore v2 incluye un sistema de eventos pub/sub para extender la funcionalidad sin modificar el código fuente.</p>
-
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr><th>Evento</th><th>Argumento</th><th>Cuándo se emite</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><code>open</code></td><td>modal element</td><td>Inmediatamente al iniciar la apertura</td></tr>
-        <tr><td><code>close</code></td><td>modal element</td><td>Cuando la animación de cierre termina</td></tr>
-        <tr><td><code>complete</code></td><td>modal element</td><td>Cuando la animación de apertura termina</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="code-wrap">
-    <pre><code><span class="comment">// Suscribirse a eventos</span>
-<span class="keyword">function</span> <span class="func">onModalOpen</span>(modal) {
-  console.<span class="func">log</span>(<span class="string">'Se abrió:'</span>, modal.id);
-  <span class="comment">// Analytics, logging, etc.</span>
+&lt;!-- Trigger estilo tarjeta --&gt;
+&lt;<span class="token tag">div</span> <span class="token attr-name">class</span>=<span class="token attr-value">"modal-trigger card-style"</span> <span class="token attr-name">data-w</span>=<span class="token attr-value">"500"</span> <span class="token attr-name">data-h</span>=<span class="token attr-value">"400"</span>&gt;
+  &lt;<span class="token tag">span</span>&gt;Perfil&lt;/<span class="token tag">span</span>&gt;
+  &lt;<span class="token tag">div</span> <span class="token attr-name">class</span>=<span class="token attr-name">class</span>=<span class="token attr-value">"modal-content"</span> <span class="token attr-name">style</span>=<span class="token attr-value">"display:none;"</span>&gt;...&lt;/<span class="token tag">div</span>&gt;
+&lt;/<span class="token tag">div</span>&gt;</code></pre>
+                </div>
+                <div class="code-block css">
+                    <pre><code><span class="token comment">/* Estilos para diferentes triggers */</span>
+<span class="token selector">.btn-primary</span> {
+  <span class="token property">background</span>: <span class="token value">#007acc</span>;
+  <span class="token property">color</span>: <span class="token value">white</span>;
+  <span class="token property">padding</span>: <span class="token value">15px 30px</span>;
+  <span class="token property">border-radius</span>: <span class="token value">25px</span>;
+  <span class="token property">border</span>: <span class="token value">none</span>;
+  <span class="token property">transition</span>: <span class="token value">all 0.3s ease</span>;
 }
 
-MorphCore.<span class="func">on</span>(<span class="string">'open'</span>, onModalOpen);
-MorphCore.<span class="func">on</span>(<span class="string">'close'</span>, (m) => console.<span class="func">log</span>(<span class="string">'Cerrado:'</span>, m.id));
-MorphCore.<span class="func">on</span>(<span class="string">'complete'</span>, (m) => {
-  <span class="comment">// Cargar contenido async después de la animación</span>
-  <span class="func">fetchContent</span>(m.id);
-});
+<span class="token selector">.btn-primary:hover</span> {
+  <span class="token property">transform</span>: <span class="token value">translateY(-2px)</span>;
+  <span class="token property">box-shadow</span>: <span class="token value">0 10px 20px rgba(0,122,204,0.3)</span>;
+}
 
-<span class="comment">// Desuscribirse</span>
-MorphCore.<span class="func">off</span>(<span class="string">'open'</span>, onModalOpen);</code></pre>
-  </div>
+<span class="token selector">.card-style</span> {
+  <span class="token property">background</span>: <span class="token value">#252526</span>;
+  <span class="token property">border</span>: <span class="token value">1px solid #3e3e42</span>;
+  <span class="token property">padding</span>: <span class="token value">20px</span>;
+  <span class="token property">border-radius</span>: <span class="token value">8px</span>;
+  <span class="token property">color</span>: <span class="token value">#d4d4d4</span>;
+  <span class="token property">min-height</span>: <span class="token value">100px</span>;
+  <span class="token property">display</span>: <span class="token value">flex</span>;
+  <span class="token property">align-items</span>: <span class="token value">center</span>;
+  <span class="token property">justify-content</span>: <span class="token value">center</span>;
+  <span class="token property">transition</span>: <span class="token value">border-color 0.3s ease</span>;
+}
 
-  <div class="callout">
-    <strong>Tip:</strong> Los callbacks pasados en <code>init({ onOpen, onClose, onComplete })</code> se registran internamente como eventos, así que puedes agregar múltiples handlers con <code>on()</code>.
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- TRIGGERS                                                               -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<section id="triggers">
-  <div class="section-label">Interacción</div>
-  <h2>Triggers y acciones</h2>
-
-  <h3>Trigger automático (click en el .modal)</h3>
-  <p>Todo elemento con clase <code>.modal</code> es clickeable como trigger. Al hacer click, se abre a sí mismo.</p>
-
-  <h3>Trigger externo con data-morph-target</h3>
-  <p>Cualquier elemento fuera del modal puede abrirlo usando <code>data-morph-target</code>:</p>
-  <div class="code-wrap">
-    <pre><code><span class="tag">&lt;button</span> <span class="attr">data-morph-target</span>=<span class="attrval">"mi-modal"</span><span class="tag">&gt;</span>Abrir modal<span class="tag">&lt;/button&gt;</span>
-
-<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="attrval">"mi-modal"</span> <span class="attr">class</span>=<span class="attrval">"modal"</span> ...<span class="tag">&gt;</span>...<span class="tag">&lt;/div&gt;</span></code></pre>
-  </div>
-
-  <h3>Cerrar con data-close</h3>
-  <p>Cualquier elemento dentro de <code>.modal-content</code> con <code>data-close</code> cierra el modal:</p>
-  <div class="code-wrap">
-    <pre><code><span class="tag">&lt;button</span> <span class="attr">data-close</span><span class="tag">&gt;</span>✕ Cerrar<span class="tag">&lt;/button&gt;</span></code></pre>
-  </div>
-
-  <h3>Abrir otro modal desde dentro</h3>
-  <p>Usa <code>data-morph-target</code> dentro de <code>.modal-content</code> para encadenar modales:</p>
-  <div class="code-wrap">
-    <pre><code><span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="attrval">"modal-content"</span><span class="tag">&gt;</span>
-  <span class="tag">&lt;h2&gt;</span>Modal 1<span class="tag">&lt;/h2&gt;</span>
-  <span class="tag">&lt;button</span> <span class="attr">data-morph-target</span>=<span class="attrval">"modal-2"</span><span class="tag">&gt;</span>Abrir Modal 2<span class="tag">&lt;/button&gt;</span>
-<span class="tag">&lt;/div&gt;</span></code></pre>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- SPAs                                                                   -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<section id="spa">
-  <div class="section-label">Avanzado</div>
-  <h2>Uso en SPAs</h2>
-
-  <p>En aplicaciones de página única (React, Vue, Svelte, etc.), los modales se crean y destruyen dinámicamente. MorphCore v2 soporta esto con <code>register()</code> y <code>destroy()</code>.</p>
-
-  <h3>Registrar modales dinámicos</h3>
-  <div class="code-wrap">
-    <pre><code><span class="comment">// Después de montar un componente con un modal</span>
-<span class="func">onMounted</span>(() => {
-  MorphCore.<span class="func">register</span>(<span class="string">'#modal-dinamico'</span>);
-});
-
-<span class="comment">// Al desmontar</span>
-<span class="func">onUnmounted</span>(() => {
-  MorphCore.<span class="func">destroy</span>();
-});</code></pre>
-  </div>
-
-  <h3>Abrir programáticamente</h3>
-  <div class="code-wrap">
-    <pre><code><span class="comment">// Desde cualquier parte del código</span>
-<span class="keyword">function</span> <span class="func">handleClick</span>() {
-  MorphCore.<span class="func">open</span>(<span class="string">'#modal-detalle'</span>, {
-    <span class="attr">w</span>: <span class="number">700</span>,
-    <span class="attr">h</span>: <span class="number">500</span>,
-    <span class="attr">bg</span>: <span class="string">'#0f172a'</span>,
-  });
+<span class="token selector">.card-style:hover</span> {
+  <span class="token property">border-color</span>: <span class="token value">#569cd6</span>;
 }</code></pre>
-  </div>
+                </div>
+            </div>
 
-  <h3>Ciclo de vida completo</h3>
-  <div class="code-wrap">
-    <pre><code><span class="comment">// 1. Configurar defaults</span>
-MorphCore.<span class="func">configure</span>({ <span class="attr">dur</span>: <span class="number">0.4</span>, <span class="attr">debug</span>: <span class="keyword">false</span> });
+            <div class="highlight">
+                <strong>💡 Tip:</strong> Usa clases específicas para cada tipo de modal-trigger. Esto te permite tener diferentes estilos visuales que se adapten al contexto de tu aplicación.
+            </div>
+        </div>
 
-<span class="comment">// 2. Inicializar</span>
-MorphCore.<span class="func">init</span>();
+        <div id="atributos" class="section">
+            <h2>📋 Data Attributes</h2>
+            <table>
+                <tr>
+                    <th>Atributo</th>
+                    <th>Descripción</th>
+                    <th>Valores</th>
+                    <th>Default</th>
+                    <th>Ejemplo</th>
+                </tr>
+                <tr>
+                    <td><code>data-w</code></td>
+                    <td>Ancho del modal en píxeles</td>
+                    <td>Número positivo</td>
+                    <td>400</td>
+                    <td><code>data-w="500"</code></td>
+                </tr>
+                <tr>
+                    <td><code>data-h</code></td>
+                    <td>Alto del modal en píxeles</td>
+                    <td>Número positivo</td>
+                    <td>400</td>
+                    <td><code>data-h="350"</code></td>
+                </tr>
+                <tr>
+                    <td><code>data-pos</code></td>
+                    <td>Posición del modal</td>
+                    <td>center, origin, custom</td>
+                    <td>center</td>
+                    <td><code>data-pos="origin"</code></td>
+                </tr>
+                <tr>
+                    <td><code>data-x</code></td>
+                    <td>Posición X en porcentaje (solo con custom)</td>
+                    <td>0-100</td>
+                    <td>50</td>
+                    <td><code>data-x="25"</code></td>
+                </tr>
+                <tr>
+                    <td><code>data-y</code></td>
+                    <td>Posición Y en porcentaje (solo con custom)</td>
+                    <td>0-100</td>
+                    <td>50</td>
+                    <td><code>data-y="75"</code></td>
+                </tr>
+                <tr>
+                    <td><code>data-radius</code></td>
+                    <td>Radio del borde del modal</td>
+                    <td>Valor CSS</td>
+                    <td>""</td>
+                    <td><code>data-radius="20px"</code></td>
+                </tr>
+                <tr>
+                    <td><code>data-dur</code></td>
+                    <td>Duración de la animación en segundos</td>
+                    <td>Número decimal</td>
+                    <td>0.9 (abrir), 0.7 (cerrar)</td>
+                    <td><code>data-dur="1.2"</code></td>
+                </tr>
+                <tr>
+                    <td><code>data-close</code></td>
+                    <td>Elemento que cierra el modal al hacer clic</td>
+                    <td>Atributo presente</td>
+                    <td>-</td>
+                    <td><code>data-close</code></td>
+                </tr>
+            </table>
+        </div>
 
-<span class="comment">// 3. Registrar modales dinámicos según se necesiten</span>
-MorphCore.<span class="func">register</span>(<span class="string">'.modal-lazy'</span>);
-
-<span class="comment">// 4. Escuchar eventos</span>
-MorphCore.<span class="func">on</span>(<span class="string">'open'</span>, trackAnalytics);
-
-<span class="comment">// 5. Consultar estado</span>
-console.<span class="func">log</span>(MorphCore.<span class="func">getState</span>());
-
-<span class="comment">// 6. Cleanup al desmontar la app</span>
-MorphCore.<span class="func">destroy</span>();</code></pre>
-  </div>
-
-  <div class="callout warn">
-    <strong>Importante:</strong> Después de <code>destroy()</code>, puedes volver a llamar <code>init()</code> para re-inicializar. Esto es útil para hot-reload en desarrollo.
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- CONFIGURE DEFAULTS                                                     -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<section id="config">
-  <div class="section-label">Configuración global</div>
-  <h2>Opciones de configure()</h2>
-
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr><th>Opción</th><th>Tipo</th><th>Default</th><th>Descripción</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><code>w</code></td><td>number</td><td>360</td><td>Ancho default de modales</td></tr>
-        <tr><td><code>h</code></td><td>number</td><td>300</td><td>Alto default de modales</td></tr>
-        <tr><td><code>pos</code></td><td>string</td><td>'center'</td><td>Posición default</td></tr>
-        <tr><td><code>dur</code></td><td>number</td><td>0.55</td><td>Duración de animación (s)</td></tr>
-        <tr><td><code>ease</code></td><td>string</td><td>'expo.out'</td><td>Easing de GSAP</td></tr>
-        <tr><td><code>closeOnOverlay</code></td><td>boolean</td><td>false</td><td>Cerrar al click en overlay</td></tr>
-        <tr><td><code>closeOnEscape</code></td><td>boolean</td><td>true</td><td>Cerrar con tecla Escape</td></tr>
-        <tr><td><code>pad</code></td><td>number</td><td>12</td><td>Padding mínimo del viewport</td></tr>
-        <tr><td><code>bg</code></td><td>string</td><td>''</td><td>Background del modal abierto</td></tr>
-        <tr><td><code>radius</code></td><td>string</td><td>'6px'</td><td>Border-radius del modal abierto</td></tr>
-        <tr><td><code>shadow</code></td><td>string</td><td>''</td><td>Box-shadow del modal abierto</td></tr>
-        <tr><td><code>overlayId</code></td><td>string</td><td>'mo'</td><td>ID del elemento overlay</td></tr>
-        <tr><td><code>overlayAutoCreate</code></td><td>boolean</td><td>false</td><td>Crear overlay automáticamente (opcional)</td></tr>
-        <tr><td><code>overlayColor</code></td><td>string</td><td>'transparent'</td><td>Color del overlay (solo si está habilitado)</td></tr>
-        <tr><td><code>debug</code></td><td>boolean</td><td>false</td><td>Habilitar logs en consola</td></tr>
-        <tr><td><code>stackOffset</code></td><td>number</td><td>16</td><td>Offset entre modales apilados</td></tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- PRIORIDAD DE CONFIGURACIÓN                                             -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<section>
-  <div class="section-label">Cascada</div>
-  <h2>Prioridad de configuración</h2>
-
-  <p>MorphCore usa una cascada de 3 niveles para resolver opciones. El nivel más específico gana:</p>
-
-  <div class="code-wrap">
-    <pre><code><span class="comment">// Nivel 1: Defaults internos (más bajo)</span>
-{ dur: <span class="number">0.55</span>, ease: <span class="string">'expo.out'</span>, pos: <span class="string">'center'</span>, ... }
-
-<span class="comment">// Nivel 2: configure() — sobreescribe defaults</span>
-MorphCore.<span class="func">configure</span>({ <span class="attr">dur</span>: <span class="number">0.4</span> });
-
-<span class="comment">// Nivel 3: data-* en el HTML — sobreescribe configure()</span>
-<span class="tag">&lt;div</span> <span class="attr">data-dur</span>=<span class="attrval">"0.7"</span><span class="tag">&gt;</span>  <span class="comment">&lt;!-- este modal usa 0.7 --&gt;</span>
-
-<span class="comment">// Nivel 4: overrides en open() — máxima prioridad</span>
-MorphCore.<span class="func">open</span>(<span class="string">'#modal'</span>, { <span class="attr">dur</span>: <span class="number">1.0</span> }); <span class="comment">// usa 1.0</span></code></pre>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- DEMO INTERACTIVA                                                       -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<section id="demo">
-  <div class="section-label">Interactivo</div>
-  <h2>Demo en vivo</h2>
-  <p>Haz click en cualquiera de los modales para ver el efecto morph en acción.</p>
-
-  <div class="demo-area" id="demo-container">
-    <div
-      id="demo-center"
-      class="modal"
-      data-w="380"
-      data-h="280"
-      data-bg="#fafafa"
-      data-radius="16px"
-      data-pos="center"
-      data-dur="0.6"
-      data-ease="expo.out"
-      data-shadow="0 25px 80px rgba(0,0,0,.5)"
-      data-close-on-overlay="true"
-      style="margin: 8px;"
-    >
-      <span>center</span>
-      <div class="modal-content">
-        <h2>Modal Center</h2>
-        <p>Este modal se abre en el centro del viewport con efecto morph suave.</p>
-        <button data-close>Cerrar</button>
-      </div>
+        <div id="ejemplos" class="section">
+            <h2>🔧 Consejos y Ejemplos</h2>
+            <ul>
+                <li><strong>Responsive:</strong> Usa media queries para ajustar data-w y data-h en diferentes pantallas.</li>
+                <li><strong>Accesibilidad:</strong> Asegúrate de que los botones tengan texto alternativo y usa ARIA labels si es necesario.</li>
+                <li><strong>Performance:</strong> MorphCore usa GSAP para animaciones suaves. Evita animar propiedades costosas como box-shadow.</li>
+                <li><strong>Múltiples Modales:</strong> Cada modal-trigger puede tener su propio contenido y estilos. Usa IDs únicos si necesitas controlarlos individualmente.</li>
+            </ul>
+        </div>
     </div>
-
-    <div
-      id="demo-origin"
-      class="modal"
-      data-w="350"
-      data-h="250"
-      data-bg="#fafafa"
-      data-radius="16px"
-      data-pos="origin-below"
-      data-dur="0.5"
-      data-ease="power3.out"
-      data-shadow="0 20px 60px rgba(0,0,0,.4)"
-      data-close-on-overlay="true"
-      style="margin: 8px;"
-    >
-      <span>origin</span>
-      <div class="modal-content">
-        <h2>Modal Origin</h2>
-        <p>Este modal se abre debajo del trigger con posición relativa al origen.</p>
-        <button data-close>Cerrar</button>
-      </div>
-    </div>
-
-    <div
-      id="demo-right"
-      class="modal"
-      data-w="400"
-      data-h="350"
-      data-bg="#fafafa"
-      data-radius="20px"
-      data-pos="right"
-      data-dur="0.7"
-      data-ease="expo.out"
-      data-shadow="0 30px 100px rgba(0,0,0,.5)"
-      data-close-on-overlay="true"
-      style="margin: 8px;"
-    >
-      <span>right</span>
-      <div class="modal-content">
-        <h2>Modal Right</h2>
-        <p>Este modal se posiciona a la derecha del viewport con una animación más lenta.</p>
-        <button data-close>Cerrar</button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- MIGRACIÓN                                                              -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<section id="migracion">
-  <div class="section-label">Migración</div>
-  <h2>De v1 a v2</h2>
-
-  <p>Si usabas la versión anterior (IIFE con <code>init()</code> auto-ejecutado), estos son los cambios:</p>
-
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr><th>v1 (antes)</th><th>v2 (ahora)</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><code>init()</code> se auto-ejecuta</td><td><code>MorphCore.init()</code> — debes llamarlo explícitamente</td></tr>
-        <tr><td><code>window._MC.open()</code></td><td><code>MorphCore.open()</code></td></tr>
-        <tr><td><code>window._MC.close()</code></td><td><code>MorphCore.close()</code></td></tr>
-        <tr><td>No hay configuración global</td><td><code>MorphCore.configure({})</code></td></tr>
-        <tr><td>No hay eventos</td><td><code>MorphCore.on() / .off()</code></td></tr>
-        <tr><td>No hay registro dinámico</td><td><code>MorphCore.register()</code></td></tr>
-        <tr><td>Overlay <code>#mo</code> obligatorio</td><td>Overlay se auto-crea si no existe</td></tr>
-        <tr><td>console.log de debug</td><td>Solo con <code>debug: true</code></td></tr>
-        <tr><td><code>opacity: 2</code> bug</td><td>Corregido a <code>opacity: 1</code></td></tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
-</div><!-- .wrap -->
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- FOOTER                                                                 -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<footer>
-  <div class="wrap">
-    MorphCore v2.0.0 — GSAP powered morph modals
-  </div>
-</footer>
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- SCRIPTS                                                                -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<script src="Morphcore.js"></script>
-<script>
-  // Inicializar MorphCore para los demos interactivos
-  MorphCore.configure({
-    overlayAutoCreate: false,
-    debug: true,
-    overlayColor: 'rgba(0,0,0,0.5)',
-  });
-  MorphCore.init({
-    onOpen: (m) => console.log('📖 Demo abierto:', m.id),
-    onClose: (m) => console.log('📖 Demo cerrado:', m.id),
-  });
-
-  // Copy buttons
-  document.querySelectorAll('.code-wrap').forEach(wrap => {
-    const pre = wrap.querySelector('pre');
-    if (!pre) return;
-    const btn = document.createElement('button');
-    btn.className = 'copy-btn';
-    btn.textContent = 'copy';
-    btn.addEventListener('click', () => {
-      navigator.clipboard.writeText(pre.textContent).then(() => {
-        btn.textContent = 'copied!';
-        setTimeout(() => btn.textContent = 'copy', 1500);
-      });
-    });
-    wrap.appendChild(btn);
-  });
-</script>
 </body>
-</html>
+</html></content>
+<parameter name="filePath">/home/lucho/Html/MediaControl/docs.html
