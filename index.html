@@ -1,398 +1,598 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentación MorphCore</title>
-    <style>
-        body {
-            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-            margin: 0;
-            padding: 0;
-            background: #1e1e1e;
-            color: #d4d4d4;
-            line-height: 1.6;
-            min-height: 100vh;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .header {
-            text-align: center;
-            padding: 40px 0;
-            border-bottom: 1px solid #3e3e42;
-        }
-        h1 {
-            color: #ffffff;
-            margin-bottom: 10px;
-            font-size: 2.5em;
-            font-weight: 600;
-            font-family: inherit;
-        }
-        .subtitle {
-            color: #b0b0b0;
-            font-size: 1.2em;
-            opacity: 0.8;
-        }
-        .nav {
-            background: #2d2d30;
-            padding: 10px 20px;
-            border-bottom: 1px solid #3e3e42;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .nav a {
-            color: #808080;
-            text-decoration: none;
-            margin-right: 20px;
-            padding: 5px 10px;
-            border-radius: 3px;
-            transition: background 0.2s;
-        }
-        .nav a:hover {
-            background: #37373d;
-        }
-        .section {
-            margin: 40px 0;
-            padding: 20px;
-            background: #252526;
-            border-radius: 6px;
-        }
-        h2 {
-            color: #ffffff;
-            border-bottom: 2px solid #606060;
-            padding-bottom: 10px;
-            margin-top: 0;
-            font-size: 1.8em;
-        }
-        h3 {
-            color: #e0e0e0;
-            margin-top: 30px;
-            font-size: 1.4em;
-        }
-        code {
-            background: #1e1e1e;
-            color: #d4d4d4;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-family: inherit;
-        }
-        pre {
-            background: #1e1e1e;
-            color: #d4d4d4;
-            padding: 15px;
-            border-radius: 6px;
-            overflow-x: auto;
-            margin: 15px 0;
-            border: none;
-            font-size: 13px;
-            line-height: 1.4;
-        }
-        .token.comment { color: #808080; }
-        .token.keyword { color: #b0b0b0; }
-        .token.string { color: #a0a0a0; }
-        .token.function { color: #c0c0c0; }
-        .token.tag { color: #b0b0b0; }
-        .token.attr-name { color: #a8a8a8; }
-        .token.attr-value { color: #a0a0a0; }
-        .highlight {
-            background: #2a2a2a;
-            border-left: 4px solid #606060;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 0 6px 6px 0;
-        }
-        .highlight strong {
-            color: #ffffff;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 20px;
-            background: #252526;
-            border: 1px solid #3e3e42;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-        th, td {
-            border: 1px solid #3e3e42;
-            padding: 12px;
-            text-align: left;
-        }
-        th {
-            background: #37373d;
-            color: #ffffff;
-            font-weight: 600;
-        }
-        tr:nth-child(even) {
-            background: #2d2d30;
-        }
-        .example {
-            background: #1e1e1e;
-            padding: 20px;
-            border-radius: 6px;
-            margin: 20px 0;
-            border: none;
-        }
-        .example h4 {
-            margin-top: 0;
-            color: #e0e0e0;
-        }
-        .info-box {
-            background: #2a2a2a;
-            padding: 15px;
-            border-radius: 6px;
-            margin: 20px 0;
-            border-left: 4px solid #606060;
-        }
-        .info-box strong {
-            color: #ffffff;
-        }
-        .code-block {
-            position: relative;
-        }
-        .code-block::before {
-            content: "HTML";
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #37373d;
-            color: #9cdcfe;
-            padding: 2px 8px;
-            border-radius: 3px;
-            font-size: 12px;
-        }
-        .code-block.css::before {
-            content: "CSS";
-        }
-        .code-block.js::before {
-            content: "JavaScript";
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MorphModal — Docs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:       #0d0f14;
+    --surface:  #13161e;
+    --border:   rgba(255,255,255,0.07);
+    --accent:   #7b93ff;
+    --accent2:  #a78bfa;
+    --green:    #4ade80;
+    --red:      #f87171;
+    --yellow:   #fbbf24;
+    --text:     #e2e4ec;
+    --muted:    #6b7280;
+    --mono:     'Geist Mono', monospace;
+    --serif:    'Instrument Serif', serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ── Layout ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ── Sidebar ── */
+  nav {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    border-right: 1px solid var(--border);
+    padding: 2rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    background: var(--surface);
+  }
+
+  .nav-logo {
+    font-family: var(--serif);
+    font-size: 1.35rem;
+    color: #fff;
+    margin-bottom: 0.25rem;
+    letter-spacing: -0.02em;
+  }
+  .nav-version {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .nav-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin: 1rem 0 0.4rem;
+  }
+
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 12.5px;
+    padding: 0.3rem 0.6rem;
+    border-radius: 5px;
+    transition: color 0.15s, background 0.15s;
+  }
+  nav a:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+
+  /* ── Main ── */
+  main {
+    padding: 3.5rem 3rem 6rem;
+    max-width: 860px;
+  }
+
+  /* ── Sections ── */
+  section { margin-bottom: 4rem; }
+
+  h1 {
+    font-family: var(--serif);
+    font-size: 2.4rem;
+    font-weight: 400;
+    color: #fff;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: 0.5rem;
+  }
+  h1 em { color: var(--accent); font-style: italic; }
+
+  h2 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h3 {
+    font-size: 13px;
+    color: #fff;
+    margin: 1.5rem 0 0.5rem;
+    font-weight: 500;
+  }
+
+  p { color: #9ba3af; margin-bottom: 0.75rem; font-size: 13px; }
+
+  .lead {
+    font-size: 14.5px;
+    color: #b0b8c8;
+    margin-bottom: 2rem;
+    max-width: 560px;
+    line-height: 1.75;
+  }
+
+  /* ── Code blocks ── */
+  pre {
+    background: #0a0c10;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    overflow-x: auto;
+    margin: 0.75rem 0 1.25rem;
+    position: relative;
+  }
+
+  pre .label {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.75rem;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  code {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.8;
+  }
+
+  /* Syntax colors */
+  .k  { color: #c792ea; } /* keyword */
+  .s  { color: #c3e88d; } /* string */
+  .c  { color: #546e7a; font-style: italic; } /* comment */
+  .a  { color: var(--accent); } /* attr */
+  .v  { color: #f78c6c; } /* value */
+  .t  { color: var(--yellow); } /* tag */
+  .fn { color: #82aaff; } /* function */
+  .p  { color: var(--muted); } /* punctuation */
+
+  /* Inline code */
+  :not(pre) > code {
+    background: rgba(123,147,255,0.1);
+    color: var(--accent);
+    padding: 0.1em 0.45em;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+
+  /* ── Callouts ── */
+  .callout {
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    margin: 1rem 0;
+    font-size: 12.5px;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  .callout.tip  { background: rgba(74,222,128,0.07); border: 1px solid rgba(74,222,128,0.18); color: #86efac; }
+  .callout.warn { background: rgba(251,191,36,0.07); border: 1px solid rgba(251,191,36,0.18); color: #fde68a; }
+  .callout.info { background: rgba(123,147,255,0.07); border: 1px solid rgba(123,147,255,0.18); color: #a5b4fc; }
+  .callout-icon { font-size: 15px; line-height: 1.5; flex-shrink: 0; }
+
+  /* ── Table ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    margin: 1rem 0 1.5rem;
+  }
+  th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    background: #0a0c10;
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 0.55rem 0.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: #9ba3af;
+    vertical-align: top;
+  }
+  td:first-child { color: var(--accent); font-size: 12px; }
+  td code { background: none; color: var(--green); padding: 0; font-size: 12px; }
+  tr:last-child td { border-bottom: none; }
+
+  /* ── Badge ── */
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    padding: 0.15em 0.55em;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+  }
+  .badge.req  { background: rgba(248,113,113,0.15); color: var(--red); border: 1px solid rgba(248,113,113,0.3); }
+  .badge.opt  { background: rgba(107,114,128,0.15); color: var(--muted); border: 1px solid rgba(107,114,128,0.25); }
+
+  /* ── Divider ── */
+  hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #2a2d38; border-radius: 99px; }
+
+  @media (max-width: 720px) {
+    .layout { grid-template-columns: 1fr; }
+    nav { display: none; }
+    main { padding: 2rem 1.25rem 4rem; }
+  }
+</style>
 </head>
 <body>
-    <div class="nav">
-        <a href="#inicio">Inicio</a>
-        <a href="#estilos">Estilos</a>
-        <a href="#atributos">Atributos</a>
-        <a href="#ejemplos">Ejemplos</a>
-    </div>
-    <div class="container">
-        <div class="header">
-            <h1>MorphCore Docs</h1>
-            <p class="subtitle">Documentación completa para la librería de modales morph</p>
-        </div>
+<div class="layout">
 
-        <div id="inicio" class="section">
-            <h2>🚀 Inicio Rápido</h2>
-            <h3>1. CDN Requerido</h3>
-            <p>Incluye GSAP en tu proyecto para las animaciones:</p>
-            <div class="code-block js">
-                <pre><code>&lt;script src="<span class="token string">"https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js"</span>&gt;&lt;/script&gt;</code></pre>
-            </div>
+  <!-- ── Sidebar ── -->
+  <nav>
+    <div class="nav-logo">MorphModal</div>
+    <div class="nav-version">v1.0.0 — MIT</div>
 
-            <h3>2. Estructura HTML Básica</h3>
-            <div class="info-box">
-                <strong>¿Qué es modal-trigger?</strong> Es el elemento que al hacer clic abre el modal. Puede ser cualquier elemento HTML (div, button, etc.) y define el punto de partida de la animación morph. Lo que pongas aquí se "transforma" visualmente en el modal.
-            </div>
-            <div class="code-block">
-                <pre><code>&lt;!-- Fondo oscuro del modal (backdrop) --&gt;
-&lt;<span class="token tag">div</span> <span class="token attr-name">id</span>=<span class="token attr-value">"mo"</span>&gt;&lt;/<span class="token tag">div</span>&gt;
+    <span class="nav-label">Inicio</span>
+    <a href="#instalacion">Instalación</a>
+    <a href="#estructura">Estructura HTML</a>
+    <a href="#css">CSS requerido</a>
 
-&lt;!-- Trigger del modal --&gt;
-&lt;<span class="token tag">div</span> <span class="token attr-name">class</span>=<span class="token attr-value">"modal-trigger"</span> <span class="token attr-name">data-w</span>=<span class="token attr-value">"400"</span> <span class="token attr-name">data-h</span>=<span class="token attr-value">"300"</span>&gt;
-  &lt;<span class="token tag">span</span>&gt;Abrir Modal&lt;/<span class="token tag">span</span>&gt;
+    <span class="nav-label">Uso</span>
+    <a href="#init">Init</a>
+    <a href="#datasets">data-* API</a>
+    <a href="#estilos">Estilos por trigger</a>
 
-  &lt;!-- Contenido oculto del modal --&gt;
-  &lt;<span class="token tag">div</span> <span class="token attr-name">class</span>=<span class="token attr-value">"modal-content"</span> <span class="token attr-name">style</span>=<span class="token attr-value">"display:none;"</span>&gt;
-    &lt;<span class="token tag">button</span> <span class="token attr-name">data-close</span>&gt;&times;&lt;/<span class="token tag">button</span>&gt;
-    &lt;<span class="token tag">h4</span>&gt;Título del Modal&lt;/<span class="token tag">h4</span>&gt;
-    &lt;<span class="token tag">p</span>&gt;Contenido aquí...&lt;/<span class="token tag">p</span>&gt;
-    &lt;<span class="token tag">button</span> <span class="token attr-name">data-close</span>&gt;Cerrar&lt;/<span class="token tag">button</span>&gt;
-  &lt;/<span class="token tag">div</span>&gt;
-&lt;/<span class="token tag">div</span>&gt;</code></pre>
-            </div>
+    <span class="nav-label">Referencia</span>
+    <a href="#api">API pública</a>
+    <a href="#no-tocar">Qué no tocar</a>
+    <a href="#tips">Tips</a>
+  </nav>
 
-            <h3>3. JavaScript Inicialización</h3>
-            <div class="code-block js">
-                <pre><code>&lt;script src="<span class="token string">"main.js"</span>&gt;&lt;/script&gt;
-&lt;script&gt;
-  <span class="token comment">// Inicializar MorphCore con GSAP</span>
-  MorphCore.init({ gsap });
-&lt;/script&gt;</code></pre>
-            </div>
-        </div>
+  <!-- ── Main ── -->
+  <main>
 
-        <div id="estilos" class="section">
-            <h2>🎨 Estilos y Personalización</h2>
-            <p>MorphCore es altamente personalizable. Puedes crear diferentes estilos para diferentes triggers usando clases CSS.</p>
+    <!-- Hero -->
+    <section>
+      <h1>Morph<em>Modal</em></h1>
+      <p class="lead">Librería vanilla JS + GSAP para animaciones morph de modales. El trigger se expande hasta convertirse en el modal — sin frameworks, sin dependencias extra.</p>
 
-            <h3>CSS Obligatorio</h3>
-            <p>Estos estilos son esenciales para que funcione correctamente:</p>
-            <div class="code-block css">
-                <pre><code><span class="token comment">/* Estilo básico del trigger */</span>
-<span class="token selector">.modal-trigger</span> {
-  <span class="token property">cursor</span>: <span class="token value">pointer</span>;
-  <span class="token comment">/* Aquí defines cómo se ve el botón/element que abre el modal */</span>
+      <div class="callout info">
+        <span class="callout-icon">→</span>
+        <span>Requiere GSAP 3. No requiere ScrollTrigger ni Flip. Solo el core de GSAP.</span>
+      </div>
+    </section>
+
+    <!-- Instalación -->
+    <section id="instalacion">
+      <h2>Instalación</h2>
+
+      <h3>CDN (recomendado)</h3>
+      <pre><code class="label">html</code><span class="c">&lt;!-- 1. GSAP primero --&gt;</span>
+<span class="t">&lt;script</span> <span class="a">src</span>=<span class="s">"https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"</span><span class="t">&gt;&lt;/script&gt;</span>
+
+<span class="c">&lt;!-- 2. MorphModal --&gt;</span>
+<span class="t">&lt;script</span> <span class="a">src</span>=<span class="s">"https://cdn.jsdelivr.net/gh/TU_USUARIO/TU_REPO@latest/morphmodal.min.js"</span><span class="t">&gt;&lt;/script&gt;</span></code></pre>
+    </section>
+
+    <!-- Estructura -->
+    <section id="estructura">
+      <h2>Estructura HTML</h2>
+      <p>MorphModal necesita tres elementos clave: el <strong>overlay</strong>, el <strong>trigger</strong> y el <strong>contenido del modal</strong>.</p>
+
+      <pre><code class="label">html</code><span class="c">&lt;!-- Overlay global (uno solo en todo el documento) --&gt;</span>
+<span class="t">&lt;div</span> <span class="a">id</span>=<span class="s">"mo"</span><span class="t">&gt;&lt;/div&gt;</span>
+
+<span class="c">&lt;!-- Trigger + contenido anidado --&gt;</span>
+<span class="t">&lt;div</span> <span class="a">class</span>=<span class="s">"modal-trigger"</span>
+     <span class="a">data-w</span>=<span class="s">"420"</span>
+     <span class="a">data-h</span>=<span class="s">"320"</span>
+     <span class="a">data-pos</span>=<span class="s">"center"</span><span class="t">&gt;</span>
+
+  Abrir modal
+
+  <span class="t">&lt;div</span> <span class="a">class</span>=<span class="s">"modal-content"</span><span class="t">&gt;</span>
+    <span class="t">&lt;h2&gt;</span>Título<span class="t">&lt;/h2&gt;</span>
+    <span class="t">&lt;p&gt;</span>Contenido del modal.<span class="t">&lt;/p&gt;</span>
+    <span class="t">&lt;button</span> <span class="a">data-close</span><span class="t">&gt;</span>Cerrar<span class="t">&lt;/button&gt;</span>
+  <span class="t">&lt;/div&gt;</span>
+
+<span class="t">&lt;/div&gt;</span></code></pre>
+
+      <div class="callout tip">
+        <span class="callout-icon">✓</span>
+        <span><code>.modal-content</code> debe ser hijo <strong>directo</strong> del trigger. MorphModal lo clona y lo anima dentro del shell.</span>
+      </div>
+
+      <div class="callout warn">
+        <span class="callout-icon">!</span>
+        <span>El <code>id="mo"</code> del overlay es fijo. No lo cambies ni lo omitas — MorphModal lo busca por ese ID para animar el fondo.</span>
+      </div>
+    </section>
+
+    <!-- CSS requerido -->
+    <section id="css">
+      <h2>CSS requerido</h2>
+      <p>Este es el mínimo indispensable. Sin esto la librería no funciona correctamente.</p>
+
+      <pre><code class="label">css</code><span class="c">/* Overlay */</span>
+<span class="a">#mo</span> {
+  <span class="k">position</span>: <span class="v">fixed</span>;
+  <span class="k">inset</span>: <span class="v">0</span>;
+  <span class="k">background</span>: <span class="v">rgba(0, 0, 0, 0.5)</span>;
+  <span class="k">opacity</span>: <span class="v">0</span>;
+  <span class="k">pointer-events</span>: <span class="v">none</span>;
+  <span class="k">z-index</span>: <span class="v">999</span>;
 }
 
-<span class="token comment">/* Contenido del modal cuando está abierto */</span>
-<span class="token selector">.modal-content.is-open</span> {
-  <span class="token property">padding</span>: <span class="token value">24px</span>;
-  <span class="token property">display</span>: <span class="token value">flex !important</span>;
-  <span class="token property">flex-direction</span>: <span class="token value">column</span>;
-  <span class="token property">height</span>: <span class="token value">100%</span>;
-  <span class="token property">box-sizing</span>: <span class="token value">border-box</span>;
-  <span class="token comment">/* Estilos del interior del modal */</span>
+<span class="c">/* Ocultar el .modal-content original (solo se ve el clon animado) */</span>
+<span class="a">.modal-content</span> {
+  <span class="k">display</span>: <span class="v">none</span>;
 }
 
-<span class="token comment">/* Clon del morph (no modificar) */</span>
-<span class="token selector">.morph-clone</span> {
-  <span class="token property">position</span>: <span class="token value">fixed</span>;
-  <span class="token property">z-index</span>: <span class="token value">1000</span>;
-  <span class="token property">overflow</span>: <span class="token value">hidden</span>;
+<span class="c">/* El clon se posiciona desde JS — no tocar */</span>
+<span class="a">.morph-clone</span> {
+  <span class="k">position</span>: <span class="v">fixed</span>;
+  <span class="k">z-index</span>: <span class="v">1000</span>;
+  <span class="k">overflow</span>: <span class="v">hidden</span>;
 }</code></pre>
-            </div>
 
-            <h3>Personalizando modal-trigger</h3>
-            <p>El <code>modal-trigger</code> es el corazón de la interacción. Puedes tener múltiples triggers con estilos diferentes usando clases adicionales.</p>
-            <div class="example">
-                <h4>Ejemplo: Múltiples Triggers con Estilos Distintos</h4>
-                <div class="code-block">
-                    <pre><code>&lt;!-- Trigger estilo botón moderno --&gt;
-&lt;<span class="token tag">div</span> <span class="token attr-name">class</span>=<span class="token attr-value">"modal-trigger btn-primary"</span> <span class="token attr-name">data-w</span>=<span class="token attr-value">"400"</span> <span class="token attr-name">data-h</span>=<span class="token attr-value">"300"</span>&gt;
-  &lt;<span class="token tag">span</span>&gt;Configuración&lt;/<span class="token tag">span</span>&gt;
-  &lt;<span class="token tag">div</span> <span class="token attr-name">class</span>=<span class="token attr-value">"modal-content"</span> <span class="token attr-name">style</span>=<span class="token attr-value">"display:none;"</span>&gt;...&lt;/<span class="token tag">div</span>&gt;
-&lt;/<span class="token tag">div</span>&gt;
+      <h3>Estilo del contenido abierto</h3>
+      <p>Para dar estilo al modal cuando está abierto, usá la clase <code>.is-open</code> que MorphModal agrega al clon del contenido:</p>
 
-&lt;!-- Trigger estilo tarjeta --&gt;
-&lt;<span class="token tag">div</span> <span class="token attr-name">class</span>=<span class="token attr-value">"modal-trigger card-style"</span> <span class="token attr-name">data-w</span>=<span class="token attr-value">"500"</span> <span class="token attr-name">data-h</span>=<span class="token attr-value">"400"</span>&gt;
-  &lt;<span class="token tag">span</span>&gt;Perfil&lt;/<span class="token tag">span</span>&gt;
-  &lt;<span class="token tag">div</span> <span class="token attr-name">class</span>=<span class="token attr-name">class</span>=<span class="token attr-value">"modal-content"</span> <span class="token attr-name">style</span>=<span class="token attr-value">"display:none;"</span>&gt;...&lt;/<span class="token tag">div</span>&gt;
-&lt;/<span class="token tag">div</span>&gt;</code></pre>
-                </div>
-                <div class="code-block css">
-                    <pre><code><span class="token comment">/* Estilos para diferentes triggers */</span>
-<span class="token selector">.btn-primary</span> {
-  <span class="token property">background</span>: <span class="token value">#007acc</span>;
-  <span class="token property">color</span>: <span class="token value">white</span>;
-  <span class="token property">padding</span>: <span class="token value">15px 30px</span>;
-  <span class="token property">border-radius</span>: <span class="token value">25px</span>;
-  <span class="token property">border</span>: <span class="token value">none</span>;
-  <span class="token property">transition</span>: <span class="token value">all 0.3s ease</span>;
-}
-
-<span class="token selector">.btn-primary:hover</span> {
-  <span class="token property">transform</span>: <span class="token value">translateY(-2px)</span>;
-  <span class="token property">box-shadow</span>: <span class="token value">0 10px 20px rgba(0,122,204,0.3)</span>;
-}
-
-<span class="token selector">.card-style</span> {
-  <span class="token property">background</span>: <span class="token value">#252526</span>;
-  <span class="token property">border</span>: <span class="token value">1px solid #3e3e42</span>;
-  <span class="token property">padding</span>: <span class="token value">20px</span>;
-  <span class="token property">border-radius</span>: <span class="token value">8px</span>;
-  <span class="token property">color</span>: <span class="token value">#d4d4d4</span>;
-  <span class="token property">min-height</span>: <span class="token value">100px</span>;
-  <span class="token property">display</span>: <span class="token value">flex</span>;
-  <span class="token property">align-items</span>: <span class="token value">center</span>;
-  <span class="token property">justify-content</span>: <span class="token value">center</span>;
-  <span class="token property">transition</span>: <span class="token value">border-color 0.3s ease</span>;
-}
-
-<span class="token selector">.card-style:hover</span> {
-  <span class="token property">border-color</span>: <span class="token value">#569cd6</span>;
+      <pre><code class="label">css</code><span class="a">.modal-content.is-open</span> {
+  <span class="k">padding</span>: <span class="v">2rem</span>;
+  <span class="k">display</span>: <span class="v">flex</span>;
+  <span class="k">flex-direction</span>: <span class="v">column</span>;
+  <span class="k">gap</span>: <span class="v">1rem</span>;
+  <span class="c">/* cualquier estilo de layout/tipografía acá */</span>
 }</code></pre>
-                </div>
-            </div>
+    </section>
 
-            <div class="highlight">
-                <strong>💡 Tip:</strong> Usa clases específicas para cada tipo de modal-trigger. Esto te permite tener diferentes estilos visuales que se adapten al contexto de tu aplicación.
-            </div>
-        </div>
+    <!-- Init -->
+    <section id="init">
+      <h2>Init</h2>
+      <p>Llamá a <code>MorphModal.init()</code> una sola vez, después de cargar GSAP.</p>
 
-        <div id="atributos" class="section">
-            <h2>📋 Data Attributes</h2>
-            <table>
-                <tr>
-                    <th>Atributo</th>
-                    <th>Descripción</th>
-                    <th>Valores</th>
-                    <th>Default</th>
-                    <th>Ejemplo</th>
-                </tr>
-                <tr>
-                    <td><code>data-w</code></td>
-                    <td>Ancho del modal en píxeles</td>
-                    <td>Número positivo</td>
-                    <td>400</td>
-                    <td><code>data-w="500"</code></td>
-                </tr>
-                <tr>
-                    <td><code>data-h</code></td>
-                    <td>Alto del modal en píxeles</td>
-                    <td>Número positivo</td>
-                    <td>400</td>
-                    <td><code>data-h="350"</code></td>
-                </tr>
-                <tr>
-                    <td><code>data-pos</code></td>
-                    <td>Posición del modal</td>
-                    <td>center, origin, custom</td>
-                    <td>center</td>
-                    <td><code>data-pos="origin"</code></td>
-                </tr>
-                <tr>
-                    <td><code>data-x</code></td>
-                    <td>Posición X en porcentaje (solo con custom)</td>
-                    <td>0-100</td>
-                    <td>50</td>
-                    <td><code>data-x="25"</code></td>
-                </tr>
-                <tr>
-                    <td><code>data-y</code></td>
-                    <td>Posición Y en porcentaje (solo con custom)</td>
-                    <td>0-100</td>
-                    <td>50</td>
-                    <td><code>data-y="75"</code></td>
-                </tr>
-                <tr>
-                    <td><code>data-radius</code></td>
-                    <td>Radio del borde del modal</td>
-                    <td>Valor CSS</td>
-                    <td>""</td>
-                    <td><code>data-radius="20px"</code></td>
-                </tr>
-                <tr>
-                    <td><code>data-dur</code></td>
-                    <td>Duración de la animación en segundos</td>
-                    <td>Número decimal</td>
-                    <td>0.9 (abrir), 0.7 (cerrar)</td>
-                    <td><code>data-dur="1.2"</code></td>
-                </tr>
-                <tr>
-                    <td><code>data-close</code></td>
-                    <td>Elemento que cierra el modal al hacer clic</td>
-                    <td>Atributo presente</td>
-                    <td>-</td>
-                    <td><code>data-close</code></td>
-                </tr>
-            </table>
-        </div>
+      <pre><code class="label">js</code><span class="fn">MorphModal</span><span class="p">.</span><span class="fn">init</span><span class="p">({</span>
+  <span class="a">gsap</span><span class="p">:</span> gsap  <span class="c">// instancia de GSAP (requerido)</span>
+<span class="p">});</span></code></pre>
 
-        <div id="ejemplos" class="section">
-            <h2>🔧 Consejos y Ejemplos</h2>
-            <ul>
-                <li><strong>Responsive:</strong> Usa media queries para ajustar data-w y data-h en diferentes pantallas.</li>
-                <li><strong>Accesibilidad:</strong> Asegúrate de que los botones tengan texto alternativo y usa ARIA labels si es necesario.</li>
-                <li><strong>Performance:</strong> MorphCore usa GSAP para animaciones suaves. Evita animar propiedades costosas como box-shadow.</li>
-                <li><strong>Múltiples Modales:</strong> Cada modal-trigger puede tener su propio contenido y estilos. Usa IDs únicos si necesitas controlarlos individualmente.</li>
-            </ul>
+      <div class="callout info">
+        <span class="callout-icon">→</span>
+        <span>Si GSAP está en el scope global como <code>window.gsap</code>, podés llamar <code>MorphModal.init()</code> sin argumentos y lo detecta automáticamente.</span>
+      </div>
+
+      <p>Podés llamar <code>init()</code> antes del <code>DOMContentLoaded</code> — MorphModal espera internamente.</p>
+    </section>
+
+    <!-- data-* API -->
+    <section id="datasets">
+      <h2>data-* API</h2>
+      <p>Toda la configuración va en atributos del trigger. Sin JS adicional.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Atributo</th>
+            <th>Tipo</th>
+            <th>Default</th>
+            <th>Descripción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>data-w</td>
+            <td><code>number</code></td>
+            <td><code>400</code></td>
+            <td>Ancho del modal en px</td>
+          </tr>
+          <tr>
+            <td>data-h</td>
+            <td><code>number</code></td>
+            <td><code>400</code></td>
+            <td>Alto del modal en px</td>
+          </tr>
+          <tr>
+            <td>data-pos</td>
+            <td><code>string</code></td>
+            <td><code>center</code></td>
+            <td><code>center</code> · <code>origin</code> · <code>custom</code></td>
+          </tr>
+          <tr>
+            <td>data-x</td>
+            <td><code>number</code></td>
+            <td><code>50</code></td>
+            <td>% horizontal (solo con <code>data-pos="custom"</code>)</td>
+          </tr>
+          <tr>
+            <td>data-y</td>
+            <td><code>number</code></td>
+            <td><code>50</code></td>
+            <td>% vertical (solo con <code>data-pos="custom"</code>)</td>
+          </tr>
+          <tr>
+            <td>data-dur</td>
+            <td><code>number</code></td>
+            <td><code>0.9</code></td>
+            <td>Duración de la animación en segundos</td>
+          </tr>
+          <tr>
+            <td>data-radius</td>
+            <td><code>string</code></td>
+            <td>—</td>
+            <td>Border-radius del modal abierto (ej: <code>"16px"</code>)</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Estilos por trigger -->
+    <section id="estilos">
+      <h2>Estilos por trigger</h2>
+      <p>Cada trigger puede tener su propio look sin tocar la librería. La clave está en que MorphModal copia el <code>background-color</code> y el <code>border</code> del trigger al clon animado.</p>
+
+      <h3>Ejemplo: tres triggers distintos</h3>
+      <pre><code class="label">css</code><span class="c">/* Trigger rojo */</span>
+<span class="a">.trigger-danger</span> {
+  <span class="k">background-color</span>: <span class="v">#7f1d1d</span>;
+  <span class="k">border-radius</span>: <span class="v">8px</span>;
+}
+
+<span class="c">/* Trigger glassmorphism */</span>
+<span class="a">.trigger-glass</span> {
+  <span class="k">background-color</span>: <span class="v">rgba(255,255,255,0.08)</span>;
+  <span class="k">border</span>: <span class="v">1px solid rgba(255,255,255,0.12)</span>;
+  <span class="k">border-radius</span>: <span class="v">16px</span>;
+  <span class="k">backdrop-filter</span>: <span class="v">blur(14px)</span>;
+}
+
+<span class="c">/* Trigger pill */</span>
+<span class="a">.trigger-pill</span> {
+  <span class="k">background-color</span>: <span class="v">#1e3a5f</span>;
+  <span class="k">border-radius</span>: <span class="v">999px</span>;
+  <span class="k">padding</span>: <span class="v">0.5rem 1.25rem</span>;
+}</code></pre>
+
+      <pre><code class="label">html</code><span class="t">&lt;div</span> <span class="a">class</span>=<span class="s">"modal-trigger trigger-danger"</span> <span class="a">data-w</span>=<span class="s">"400"</span> <span class="a">data-h</span>=<span class="s">"300"</span> <span class="a">data-radius</span>=<span class="s">"12px"</span><span class="t">&gt;</span>
+  ...
+<span class="t">&lt;/div&gt;</span>
+
+<span class="t">&lt;div</span> <span class="a">class</span>=<span class="s">"modal-trigger trigger-glass"</span> <span class="a">data-w</span>=<span class="s">"480"</span> <span class="a">data-h</span>=<span class="s">"360"</span> <span class="a">data-radius</span>=<span class="s">"20px"</span><span class="t">&gt;</span>
+  ...
+<span class="t">&lt;/div&gt;</span></code></pre>
+
+      <div class="callout tip">
+        <span class="callout-icon">✓</span>
+        <span>El <code>border-radius</code> del trigger es el punto de partida de la animación. El <code>data-radius</code> es el border-radius del modal ya abierto. Cuanto más distintos, más dramático el morph.</span>
+      </div>
+
+      <h3>Estilo del contenido por trigger</h3>
+      <p>Para diferenciar el contenido de cada modal, dale una clase al <code>.modal-content</code>:</p>
+
+      <pre><code class="label">html</code><span class="t">&lt;div</span> <span class="a">class</span>=<span class="s">"modal-trigger trigger-danger"</span> <span class="a">data-w</span>=<span class="s">"400"</span> <span class="a">data-h</span>=<span class="s">"300"</span><span class="t">&gt;</span>
+  <span class="t">&lt;div</span> <span class="a">class</span>=<span class="s">"modal-content modal-danger"</span><span class="t">&gt;</span>
+    <span class="t">&lt;h2&gt;</span>¡Atención!<span class="t">&lt;/h2&gt;</span>
+    <span class="t">&lt;button</span> <span class="a">data-close</span><span class="t">&gt;</span>Entendido<span class="t">&lt;/button&gt;</span>
+  <span class="t">&lt;/div&gt;</span>
+<span class="t">&lt;/div&gt;</span></code></pre>
+
+      <pre><code class="label">css</code><span class="a">.modal-danger.is-open</span> {
+  <span class="k">padding</span>: <span class="v">2rem</span>;
+  <span class="k">border-top</span>: <span class="v">3px solid #ef4444</span>;
+}
+<span class="a">.modal-danger.is-open h2</span> { <span class="k">color</span>: <span class="v">#fca5a5</span>; }</code></pre>
+    </section>
+
+    <!-- API pública -->
+    <section id="api">
+      <h2>API pública</h2>
+      <table>
+        <thead>
+          <tr><th>Método</th><th>Descripción</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>MorphModal.init(config)</td>
+            <td>Inicializa la librería. Registra todos los triggers existentes en el DOM.</td>
+          </tr>
+          <tr>
+            <td>MorphModal.open(el)</td>
+            <td>Abre el modal del elemento trigger pasado como argumento.</td>
+          </tr>
+          <tr>
+            <td>MorphModal.close()</td>
+            <td>Cierra el modal activo.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Abrir por código</h3>
+      <pre><code class="label">js</code><span class="k">const</span> trigger = document.<span class="fn">querySelector</span>(<span class="s">"#mi-trigger"</span>);
+<span class="fn">MorphModal</span><span class="p">.</span><span class="fn">open</span>(trigger);</code></pre>
+
+      <h3>Cerrar por código</h3>
+      <pre><code class="label">js</code><span class="fn">MorphModal</span><span class="p">.</span><span class="fn">close</span>();</code></pre>
+    </section>
+
+    <!-- Qué no tocar -->
+    <section id="no-tocar">
+      <h2>Qué no tocar</h2>
+
+      <div class="callout warn">
+        <span class="callout-icon">!</span>
+        <div>
+          <strong>No modificar con CSS:</strong>
+          <ul style="margin-top:0.4rem; padding-left:1.1rem; color:#fde68a; font-size:12.5px; line-height:1.9;">
+            <li><code>.morph-clone</code> — MorphModal controla su posición, tamaño y opacidad vía JS</li>
+            <li><code>#mo</code> opacidad y pointer-events — los maneja la animación</li>
+            <li><code>.modal-content</code> display — debe permanecer en <code>none</code></li>
+          </ul>
         </div>
-    </div>
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-icon">✓</span>
+        <div>
+          <strong>Podés modificar libremente:</strong>
+          <ul style="margin-top:0.4rem; padding-left:1.1rem; color:#86efac; font-size:12.5px; line-height:1.9;">
+            <li>Cualquier estilo visual del trigger (<code>background</code>, <code>border</code>, <code>border-radius</code>, <code>padding</code>, tipografía)</li>
+            <li>El background del overlay <code>#mo</code> (color y blur)</li>
+            <li>Todo el contenido dentro de <code>.modal-content.is-open</code></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tips -->
+    <section id="tips">
+      <h2>Tips</h2>
+
+      <h3>El morph se ve mejor cuando...</h3>
+      <p>El trigger y el modal tienen formas notablemente distintas. Un botón pill (<code>border-radius: 999px</code>) que se expande a un modal rectangular genera el efecto más llamativo.</p>
+
+      <h3>data-pos="origin"</h3>
+      <p>El modal se abre en la misma posición del trigger, sin moverse al centro. Útil para tarjetas que se expanden in-place.</p>
+
+      <h3>Cerrar con Escape</h3>
+      <p>Está habilitado automáticamente. No necesitás hacer nada.</p>
+
+      <h3>Cerrar con overlay</h3>
+      <p>El overlay <code>#mo</code> cierra el modal al hacer click. También automático.</p>
+
+      <h3>Inputs dentro del modal</h3>
+      <p>MorphModal preserva el estado de <code>input</code>, <code>textarea</code> y <code>select</code> entre aperturas. El usuario no pierde lo que escribió.</p>
+
+      <h3>Múltiples triggers</h3>
+      <p>Podés tener tantos triggers como quieras en la misma página. Solo puede estar abierto uno a la vez.</p>
+    </section>
+
+  </main>
+</div>
 </body>
-</html></content>
-<parameter name="filePath">/home/lucho/Html/MediaControl/docs.html
+</html>
