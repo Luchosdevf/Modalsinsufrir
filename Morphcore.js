@@ -1,10 +1,12 @@
+/*! MorphModaL 2.0
+Autor: Lucho
+Last update: 16/04/2026
+MorphCore.init({ gsap }); */
 window.MorphCore = (() => {
   let _gsap = null;
   let _active = null;
   let _scrollPos = 0;
   let _animating = false;
-
-  // ── Scroll lock ──────────────────────────────────────────────
   const lockScroll = (lock) => {
     if (lock) {
       _scrollPos = window.pageYOffset;
@@ -35,7 +37,7 @@ window.MorphCore = (() => {
     if (!_active || _animating) return;
     const { m, clone, r, ct, source } = _active;
 
-    syncState(ct, source); // Guardar estado antes de destruir el clon
+    syncState(ct, source);
 
     _animating = true;
     const dur = parseFloat(m.dataset.dur) || 0.7;
@@ -48,8 +50,6 @@ window.MorphCore = (() => {
         _animating = false;
       },
     });
-
-    // FIX STAGGER: hijos desaparecen uno por uno
     const children = Array.from(ct.children);
     if (children.length) {
       tl.fromTo(
@@ -88,26 +88,20 @@ window.MorphCore = (() => {
     const mo = document.getElementById("mo");
     if (mo) tl.to(mo, { opacity: 0, pointerEvents: "none", duration: 0.5 }, 0);
   };
-
-  // ── OPEN ─────────────────────────────────────────────────────
   const open = (m) => {
     if (_active || _animating || !m) return;
-    if (_active || !m) return;
     const contentSource = m.querySelector(".modal-content");
     if (!contentSource) return;
 
     const r = m.getBoundingClientRect();
     const cs = getComputedStyle(m);
     lockScroll(true);
-    // ── Crear clon ──
     const clone = document.createElement("div");
     clone.className = "morph-clone";
 
     let bgColor = cs.backgroundColor;
     if (bgColor === "rgba(0, 0, 0, 0)" || bgColor === "transparent")
       bgColor = "#151820";
-
-    // Posición inicial = posición del trigger (origin para x:0,y:0 en el cierre)
     Object.assign(clone.style, {
       position: "fixed",
       top: r.top + "px",
@@ -117,23 +111,18 @@ window.MorphCore = (() => {
       zIndex: "1000",
       overflow: "hidden",
       borderRadius: cs.borderRadius,
-      // FIX: sin transiciones CSS que peleen con GSAP
       transition: "none",
     });
 
     clone.style.setProperty("background-color", bgColor, "important");
     clone.style.setProperty("background-image", "none", "important");
     clone.style.setProperty("border", cs.border, "important");
-
-    // FIX: box-shadow suave para estética premium
     clone.style.boxShadow =
       "0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06)";
 
     document.body.appendChild(clone);
-
-    // ── Clonar contenido ──
     const ct = contentSource.cloneNode(true);
-    ct.style.cssText = ""; // limpiamos inline styles del original
+    ct.style.cssText = "";
     ct.style.width = "100%";
     ct.style.height = "100%";
     ct.style.opacity = "0";
@@ -143,8 +132,6 @@ window.MorphCore = (() => {
 
     syncState(contentSource, ct);
     clone.appendChild(ct);
-
-    // ── Destino centrado ──
     const w = parseFloat(m.dataset.w) || 400;
     const h = parseFloat(m.dataset.h) || 400;
     const pos = m.dataset.pos || "center";
@@ -161,22 +148,18 @@ window.MorphCore = (() => {
         x: (window.innerWidth - w) * (xPercent / 100),
         y: (window.innerHeight - h) * (yPercent / 100),
       };
-    } else { // center
+    } else {
       dest = {
         x: (window.innerWidth - w) / 2,
         y: (window.innerHeight - h) / 2,
       };
     }
-
-    // ── Timeline de apertura ──
     const dur = parseFloat(m.dataset.dur) || 0.9;
 
     _animating = true;
     const tl = _gsap.timeline({
       onComplete: () => (_animating = false),
     });
-
-    // PARCHE: Ocultar el trigger original al iniciar
     tl.set(m, { opacity: 0 }, 0);
 
     const mo = document.getElementById("mo");
@@ -184,11 +167,10 @@ window.MorphCore = (() => {
 
     tl.to(clone, {
       borderRadius: m.dataset.radius || "",
-      duration: 0.2, // Más corto que la expansión
+      duration: 0.2,
       ease: "power4.out" 
     }, 0);
 
-    // 2. Animamos posición y tamaño
     tl.to(clone, {
       x: dest.x - r.left,
       y: dest.y - r.top,
@@ -199,10 +181,9 @@ window.MorphCore = (() => {
       roundProps: "x,y,width,height",
     }, 0);
 
-    // Fade del contenido
+
     tl.to(ct, { opacity: 1, filter: "blur(0px)", duration: dur - 0.25, ease: "power2.out" }, 0);
 
-    // FIX STAGGER: hijos aparecen uno por uno (cascada profesional)
     const children = Array.from(ct.children);
     if (children.length) {
       tl.fromTo(
@@ -214,14 +195,11 @@ window.MorphCore = (() => {
     }
 
     _active = { m, clone, r, ct, source: contentSource };
-
-    // Eventos de cierre dentro del clon
     ct.querySelectorAll("[data-close]").forEach((b) =>
       b.addEventListener("pointerdown", close),
     );
   };
 
-  // ── PUBLIC API ───────────────────────────────────────────────
   return {
     init: (config = {}) => {
       _gsap = config.gsap || window.gsap;
@@ -229,7 +207,6 @@ window.MorphCore = (() => {
 
       const setup = () => {
         document.querySelectorAll(".modal-trigger").forEach((m) => {
-          // FIX: pointerdown para respuesta instantánea (sin lag de 300ms del click en móvil)
           m.addEventListener("pointerdown", () => open(m));
         });
 
